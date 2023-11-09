@@ -182,7 +182,7 @@ Instruction set
   If S0 is not a null pointer, branch to block B. This is used to check the
   return value of a native helper that returns a potentially null StringData*.
 
-| AssertType<T>, DRefineS(0), S(Cell,Mem), P
+| AssertType<T>, DRefineS(0), S(Cell|Nullptr,Mem), P
 
   Assert that the type of S0 is T, copying it to D.
 
@@ -697,7 +697,13 @@ To string conversions:
 
 | ThrowAsTypeStructException, ND, S(Dict) S(Cell), LA|T
 
-  Throws an exception indicating why S1 does not match the type structure of a
+  Throws an TypehintViolationException indicating why S1 does not match the type structure of a
+  defined type in S0 or why S1 is not a subtype of S0. The input type structure
+  (S0) must be resolved.
+
+| ThrowAsTypeStructError, ND, S(Dict) S(Cell), LA|T
+
+  Throws a recoverable error indicating why S1 does not match the type structure of a
   defined type in S0 or why S1 is not a subtype of S0. The input type structure
   (S0) must be resolved.
 
@@ -3576,7 +3582,7 @@ fields of that struct for holding intermediate values.
 
 18. Exception/unwinding support
 
-| BeginCatch, ND, NA, NF
+| BeginCatch, DParam(Obj|Nullptr), NA, PRc
 
   Marks the beginning of a catch region. Exact behavior is implementation and
   architecture specific.

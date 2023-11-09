@@ -47,10 +47,12 @@ TRACE_SET_MOD(irlower);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void cgBeginCatch(IRLS& env, const IRInstruction* /*inst*/) {
+void cgBeginCatch(IRLS& env, const IRInstruction* inst) {
   auto& v = vmain(env);
+  auto const dst = dstLoc(env, inst, 0).reg();
 
   v << landingpad{};
+  v << copy{rret(0), dst};
   emitIncStat(v, Stats::TC_CatchTrace);
 }
 
@@ -315,6 +317,7 @@ IMPL_OPCODE_CALL(RaiseWarning)
 IMPL_OPCODE_CALL(ThrowArrayIndexException)
 IMPL_OPCODE_CALL(ThrowArrayKeyException)
 IMPL_OPCODE_CALL(ThrowAsTypeStructException)
+IMPL_OPCODE_CALL(ThrowAsTypeStructError)
 IMPL_OPCODE_CALL(ThrowCallReifiedFunctionWithoutGenerics)
 IMPL_OPCODE_CALL(ThrowDivisionByZeroException)
 IMPL_OPCODE_CALL(ThrowHasThisNeedStatic)
