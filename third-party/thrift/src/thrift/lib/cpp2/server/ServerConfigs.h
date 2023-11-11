@@ -38,7 +38,8 @@ using PreprocessResult = std::variant<
     std::monostate, // Allow request through
     AppClientException,
     AppServerException,
-    AppOverloadedException>;
+    AppOverloadedException,
+    AppQuotaExceededException>;
 
 class Cpp2ConnContext;
 class Cpp2RequestContext;
@@ -225,9 +226,14 @@ class ServerConfigs {
   }
 
   virtual std::chrono::milliseconds getQueueTimeout() const = 0;
+
   virtual uint32_t getQueueTimeoutPct() const = 0;
+
   virtual bool getUseClientTimeout() const = 0;
+
   virtual std::chrono::milliseconds getTaskExpireTime() const = 0;
+
+  virtual size_t getNumTypedInterceptors() const = 0;
 
  private:
   folly::relaxed_atomic<int32_t> activeRequests_{0};

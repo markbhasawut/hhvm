@@ -186,42 +186,29 @@ let visitor ~(cursor : Pos.t) =
   end
 
 let edit_of_candidate
-    ~path ~source_text Candidate.{ insertion_index; positions; pos } =
+    ~path ~source_text Candidate.{ insertion_index; positions; pos } :
+    Code_action_types.edits =
   let text =
     positions
     |> List.map ~f:(Full_fidelity_source_text.sub_of_pos source_text)
     |> list_flip ~insertion_index
     |> String.concat ~sep:", "
   in
-  let change =
-    Lsp.
-      {
-        TextEdit.range =
-          Lsp_helpers.hack_pos_to_lsp_range ~equal:Relative_path.equal pos;
-        newText = text;
-      }
-  in
-  let changes =
-    Lsp.DocumentUri.Map.singleton (Lsp_helpers.path_to_lsp_uri path) [change]
-  in
-  Lsp.WorkspaceEdit.{ changes }
+  let change = Code_action_types.{ pos; text } in
+  Relative_path.Map.singleton path [change]
 
 let refactor_of_candidate ~path ~source_text candidate =
-  let edit = lazy (edit_of_candidate ~path ~source_text candidate) in
-  Code_action_types.Refactor.{ title = "Flip around comma"; edit }
+  let edits = lazy (edit_of_candidate ~path ~source_text candidate) in
+  Code_action_types.Refactor.{ title = "Flip around comma"; edits }
 
-let find ~entry ~(range : Lsp.range) ctx =
-  if not (Lsp_helpers.lsp_range_is_selection range) then
+let find ~entry pos ctx =
+  if Pos.length pos = 0 then
     let source_text = Ast_provider.compute_source_text ~entry in
-    let line_to_offset line =
-      Full_fidelity_source_text.position_to_offset source_text (line, 0)
-    in
     let { Tast_provider.Compute_tast.tast; _ } =
       Tast_provider.compute_tast_quarantined ~ctx ~entry
     in
     let path = entry.Provider_context.path in
-    let cursor = Lsp_helpers.lsp_range_to_pos ~line_to_offset path range in
-    (visitor ~cursor)#go ctx tast.Tast_with_dynamic.under_normal_assumptions
+    (visitor ~cursor:pos)#go ctx tast.Tast_with_dynamic.under_normal_assumptions
     |> Option.map ~f:(refactor_of_candidate ~path ~source_text)
     |> Option.to_list
   else

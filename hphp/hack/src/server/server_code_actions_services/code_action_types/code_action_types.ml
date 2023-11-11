@@ -7,23 +7,27 @@
  *)
 open Hh_prelude
 
+type edit = {
+  pos: Pos.t;
+  text: string;
+}
+
+type edits = edit list Relative_path.Map.t
+
 module Refactor = struct
   type t = {
     title: string;
-    edit: Lsp.WorkspaceEdit.t Lazy.t;
+    edits: edits Lazy.t;
   }
 
   type find =
-    entry:Provider_context.entry ->
-    range:Lsp.range ->
-    Provider_context.t ->
-    t list
+    entry:Provider_context.entry -> Pos.t -> Provider_context.t -> t list
 end
 
 module Quickfix = struct
   type t = {
     title: string;
-    edit: Lsp.WorkspaceEdit.t Lazy.t;
+    edits: edits Lazy.t;
   }
 end
 

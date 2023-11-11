@@ -69,7 +69,6 @@ type rollout_flags = {
   use_compressed_dep_graph: bool;
   use_old_decls_from_cas: bool;
   saved_state_rollouts: Saved_state_rollouts.t;
-  autocomplete_cache: bool;
   zstd_decompress_by_file: bool;
   lsp_pull_diagnostics: bool;
 }
@@ -197,6 +196,8 @@ let client_check_partial _ _ ~init_proc_stack:_ ~spinner:_ = ()
 let client_check_bad_exit _ _ ~init_proc_stack:_ ~spinner:_ = ()
 
 let client_check_errors_file_restarted _ = ()
+
+let client_lsp_start ~init_proc_stack:_ ~hhconfig_version_and_switch:_ = ()
 
 let client_lsp_method_handled
     ~root:_

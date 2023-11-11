@@ -1014,8 +1014,9 @@ struct RuntimeOption {
   F(bool, AssemblerFoldDefaultValues,  true)                            \
   F(uint64_t, AssemblerMaxScalarSize,  2147483648) /* 2GB */            \
   F(uint32_t, HHIRLoadElimMaxIters,    10)                              \
-  F(uint32_t, HHIRLoadStackTeardownMaxDecrefs, 8)                       \
-  F(uint32_t, HHIRLoadThrowMaxDecrefs, 64)                              \
+  F(bool, HHIRLoadEnableTeardownOpts, true)                            \
+  F(uint32_t, HHIRLoadStackTeardownMaxDecrefs, 0)                       \
+  F(uint32_t, HHIRLoadThrowMaxDecrefs, 0)                              \
   F(bool, HHIRStorePRE,                true)                            \
   F(bool, HHIRSinkDefs,                true)                            \
   F(bool, HHIRLowerBespokesPostIRGen,  true)                            \
@@ -1637,6 +1638,14 @@ public:
   static int Fb303ServerThreadStackSizeMb;
   static int Fb303ServerWorkerThreads;
   static int Fb303ServerPoolThreads;
+
+  // Experimental thread tuning options, allows threads to be adjusted by
+  // thread controller (host stats monitor). Maximum adjustment is defined by
+  // the `ThreadTuneAdjustmentPct` of the configured thread count, and the step
+  // size is defined by `ThreadTuneStepPct`. Thread tuning is turned off when
+  // `ThreadTuneAdjustmentPct` is set to 0 (default).
+  static double ThreadTuneAdjustmentPct;
+  static double ThreadTuneStepPct;
 #endif
 
   // Xenon options

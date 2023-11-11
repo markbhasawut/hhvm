@@ -422,15 +422,12 @@ void ThriftRocketServerHandler::handleRequestCommon(
       if (auto* observer = serverConfigs_->getObserver()) {
         observer->taskKilled();
       }
-      makeActiveRequest(
-          std::move(metadata),
-          std::move(debugPayload),
-          createDefaultRequestContext())
-          ->sendErrorWrapped(
-              folly::make_exception_wrapper<TApplicationException>(
-                  TApplicationException::UNKNOWN,
-                  tryFds.exception().what().toStdString()),
-              kRequestParsingErrorCode);
+      handleRequestWithFdsExtractionFailure(
+          makeActiveRequest(
+              std::move(metadata),
+              std::move(debugPayload),
+              createDefaultRequestContext()),
+          tryFds.exception().what().toStdString());
       return;
     }
   }
@@ -578,6 +575,12 @@ void ThriftRocketServerHandler::handleRequestCommon(
           handleRequestOverloadedServer(
               std::move(request), kAppOverloadedErrorCode, aoe.getMessage());
         },
+        [&](AppQuotaExceededException& aqe) {
+          handleQuotaExceededException(
+              std::move(request),
+              kTenantQuotaExceededErrorCode,
+              aqe.getMessage());
+        },
         [](std::monostate&) { folly::assume_unreachable(); });
 
     return;
@@ -691,6 +694,19 @@ void ThriftRocketServerHandler::handleRequestOverloadedServer(
   }
 }
 
+void ThriftRocketServerHandler::handleQuotaExceededException(
+    ThriftRequestCoreUniquePtr request,
+    const std::string& errorCode,
+    const std::string& errorMessage) {
+  if (auto* observer = serverConfigs_->getObserver()) {
+    observer->taskKilled();
+  }
+  request->sendErrorWrapped(
+      folly::make_exception_wrapper<TApplicationException>(
+          TApplicationException::TENANT_QUOTA_EXCEEDED, errorMessage),
+      errorCode);
+}
+
 void ThriftRocketServerHandler::handleAppError(
     ThriftRequestCoreUniquePtr request,
     const PreprocessResult& appErrorResult) {
@@ -707,6 +723,18 @@ void ThriftRocketServerHandler::handleAppError(
         request->sendErrorWrapped(ase, kAppServerErrorCode);
       },
       [&](const auto&) { folly::assume_unreachable(); });
+}
+
+void ThriftRocketServerHandler::handleRequestWithFdsExtractionFailure(
+    ThriftRequestCoreUniquePtr request, std::string&& errorMessage) {
+  if (auto* observer = serverConfigs_->getObserver()) {
+    observer->taskKilled();
+  }
+  request->sendErrorWrapped(
+      folly::make_exception_wrapper<TApplicationException>(
+          TApplicationException::UNKNOWN, std::move(errorMessage)),
+      kRequestParsingErrorCode);
+  return;
 }
 
 void ThriftRocketServerHandler::handleServerNotReady(

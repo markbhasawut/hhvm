@@ -138,9 +138,15 @@ class ThriftRocketServerHandler : public RocketServerHandler {
       ThriftRequestCoreUniquePtr request,
       const std::string& errorCode,
       const std::string& errorMessage);
+  FOLLY_NOINLINE void handleQuotaExceededException(
+      ThriftRequestCoreUniquePtr request,
+      const std::string& errorCode,
+      const std::string& errorMessage);
   FOLLY_NOINLINE void handleAppError(
       ThriftRequestCoreUniquePtr request,
       const PreprocessResult& appErrorResult);
+  FOLLY_NOINLINE void handleRequestWithFdsExtractionFailure(
+      ThriftRequestCoreUniquePtr request, std::string&& errorMessage);
   FOLLY_NOINLINE void handleDecompressionFailure(
       ThriftRequestCoreUniquePtr request, std::string&& reason);
   FOLLY_NOINLINE void handleServerNotReady(ThriftRequestCoreUniquePtr request);
