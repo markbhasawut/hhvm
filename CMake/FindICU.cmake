@@ -10,86 +10,121 @@
 #                       (note: in addition to ICU_LIBRARIES)
 
 # Look for the header file.
-find_path(
-  ICU_INCLUDE_DIR
-  NAMES unicode/utypes.h
-  DOC "Include directory for the ICU library")
-mark_as_advanced(ICU_INCLUDE_DIR)
+include(FindPkgConfig)
 
-# Look for the library.
-find_library(
-  ICU_LIBRARY
-  NAMES icuuc cygicuuc cygicuuc32
-  DOC "Libraries to link against for the common parts of ICU")
-mark_as_advanced(ICU_LIBRARY)
+pkg_check_modules(PC_ICU QUIET icu-uc icu-i18n)
 
-# Copy the results to the output variables.
-if(ICU_INCLUDE_DIR AND ICU_LIBRARY)
+if(PC_ICU_FOUND)
+  # ICU found via pkgconf/pkg-config
   set(ICU_FOUND 1)
-  set(ICU_LIBRARIES ${ICU_LIBRARY})
-  set(ICU_INCLUDE_DIRS ${ICU_INCLUDE_DIR})
+  set(ICU_INCLUDE_DIRS ${PC_ICU_INCLUDE_DIRS})
+  set(ICU_LIBRARIES ${PC_ICU_LIBRARIES})
+  set(ICU_DATA_LIBRARIES ${PC_ICU_LIBRARIES})
+  set(ICU_I18N_LIBRARIES ${PC_ICU_LIBRARIES})
 
+  # Fetch ICU version information from pkgconf
   set(ICU_VERSION 0)
   set(ICU_MAJOR_VERSION 0)
   set(ICU_MINOR_VERSION 0)
-  if (EXISTS "${ICU_INCLUDE_DIR}/unicode/uvernum.h")
-    FILE(READ "${ICU_INCLUDE_DIR}/unicode/uvernum.h" _ICU_VERSION_CONTENTS)
+  if (EXISTS "${ICU_INCLUDE_DIRS}/unicode/uvernum.h")
+    FILE(READ "${ICU_INCLUDE_DIRS}/unicode/uvernum.h" _PC_ICU_VERSION_CONTENTS)
   else()
-    FILE(READ "${ICU_INCLUDE_DIR}/unicode/uversion.h" _ICU_VERSION_CONTENTS)
+    FILE(READ "${ICU_INCLUDE_DIRS}/unicode/uversion.h" _PC_ICU_VERSION_CONTENTS)
   endif()
 
-  STRING(REGEX REPLACE ".*#define U_ICU_VERSION_MAJOR_NUM ([0-9]+).*" "\\1" ICU_MAJOR_VERSION "${_ICU_VERSION_CONTENTS}")
-  STRING(REGEX REPLACE ".*#define U_ICU_VERSION_MINOR_NUM ([0-9]+).*" "\\1" ICU_MINOR_VERSION "${_ICU_VERSION_CONTENTS}")
+  string(REGEX REPLACE ".*#define U_ICU_VERSION_MAJOR_NUM ([0-9]+).*" "\\1" ICU_MAJOR_VERSION "${_PC_ICU_VERSION_CONTENTS}")
+  string(REGEX REPLACE ".*#define U_ICU_VERSION_MINOR_NUM ([0-9]+).*" "\\1" ICU_MINOR_VERSION "${_PC_ICU_VERSION_CONTENTS}")
 
   set(ICU_VERSION "${ICU_MAJOR_VERSION}.${ICU_MINOR_VERSION}")
 
-  # Look for the ICU internationalization libraries
+  message(STATUS "Found ICU using pkg-config/pkgconf: version ${ICU_VERSION}")
+  message(STATUS "Include directory: ${ICU_INCLUDE_DIRS}")
+  message(STATUS "Libraries: ${ICU_LIBRARIES}")
+
+else()
+
+  find_path(
+    ICU_INCLUDE_DIR
+    NAMES unicode/utypes.h
+    DOC "Include directory for the ICU library")
+  mark_as_advanced(ICU_INCLUDE_DIR)
+
+  # Look for the library.
   find_library(
-    ICU_I18N_LIBRARY
-    NAMES icuin icui18n cygicuin cygicuin32
-    DOC "Libraries to link against for ICU internationalization")
-  mark_as_advanced(ICU_I18N_LIBRARY)
-  if (ICU_I18N_LIBRARY)
-    set(ICU_I18N_FOUND 1)
-    set(ICU_I18N_LIBRARIES ${ICU_I18N_LIBRARY})
-  else (ICU_I18N_LIBRARY)
+    ICU_LIBRARY
+    NAMES icuuc cygicuuc cygicuuc32
+    DOC "Libraries to link against for the common parts of ICU")
+  mark_as_advanced(ICU_LIBRARY)
+
+  # Copy the results to the output variables.
+  if(ICU_INCLUDE_DIR AND ICU_LIBRARY)
+    set(ICU_FOUND 1)
+    set(ICU_LIBRARIES ${ICU_LIBRARY})
+    set(ICU_INCLUDE_DIRS ${ICU_INCLUDE_DIR})
+
+    set(ICU_VERSION 0)
+    set(ICU_MAJOR_VERSION 0)
+    set(ICU_MINOR_VERSION 0)
+    if (EXISTS "${ICU_INCLUDE_DIR}/unicode/uvernum.h")
+      FILE(READ "${ICU_INCLUDE_DIR}/unicode/uvernum.h" _ICU_VERSION_CONTENTS)
+    else()
+      FILE(READ "${ICU_INCLUDE_DIR}/unicode/uversion.h" _ICU_VERSION_CONTENTS)
+    endif()
+
+    STRING(REGEX REPLACE ".*#define U_ICU_VERSION_MAJOR_NUM ([0-9]+).*" "\\1" ICU_MAJOR_VERSION "${_ICU_VERSION_CONTENTS}")
+    STRING(REGEX REPLACE ".*#define U_ICU_VERSION_MINOR_NUM ([0-9]+).*" "\\1" ICU_MINOR_VERSION "${_ICU_VERSION_CONTENTS}")
+
+    set(ICU_VERSION "${ICU_MAJOR_VERSION}.${ICU_MINOR_VERSION}")
+
+    # Look for the ICU internationalization libraries
+    find_library(
+      ICU_I18N_LIBRARY
+      NAMES icuin icui18n cygicuin cygicuin32
+      DOC "Libraries to link against for ICU internationalization")
+    mark_as_advanced(ICU_I18N_LIBRARY)
+    if (ICU_I18N_LIBRARY)
+      set(ICU_I18N_FOUND 1)
+      set(ICU_I18N_LIBRARIES ${ICU_I18N_LIBRARY})
+    else (ICU_I18N_LIBRARY)
+      set(ICU_I18N_FOUND 0)
+      set(ICU_I18N_LIBRARIES)
+    endif (ICU_I18N_LIBRARY)
+
+    # Look for the ICU data libraries
+    find_library(
+        ICU_DATA_LIBRARY
+      NAMES icudt icudata cygicudata cygicudata32
+      DOC "Libraries to link against for ICU data")
+    mark_as_advanced(ICU_DATA_LIBRARY)
+    if (ICU_DATA_LIBRARY)
+      set(ICU_DATA_FOUND 1)
+      set(ICU_DATA_LIBRARIES ${ICU_DATA_LIBRARY})
+    else (ICU_DATA_LIBRARY)
+      set(ICU_DATA_FOUND 0)
+      set(ICU_DATA_LIBRARIES)
+    endif (ICU_DATA_LIBRARY)
+  else(ICU_INCLUDE_DIR AND ICU_LIBRARY)
+    set(ICU_FOUND 0)
     set(ICU_I18N_FOUND 0)
+    set(ICU_LIBRARIES)
     set(ICU_I18N_LIBRARIES)
-  endif (ICU_I18N_LIBRARY)
+    set(ICU_INCLUDE_DIRS)
+    set(ICU_VERSION)
+    set(ICU_MAJOR_VERSION)
+    set(ICU_MINOR_VERSION)
+  endif(ICU_INCLUDE_DIR AND ICU_LIBRARY)
 
-  # Look for the ICU data libraries
-  find_library(
-      ICU_DATA_LIBRARY
-    NAMES icudt icudata cygicudata cygicudata32
-    DOC "Libraries to link against for ICU data")
-  mark_as_advanced(ICU_DATA_LIBRARY)
-  if (ICU_DATA_LIBRARY)
-    set(ICU_DATA_FOUND 1)
-    set(ICU_DATA_LIBRARIES ${ICU_DATA_LIBRARY})
-  else (ICU_DATA_LIBRARY)
-    set(ICU_DATA_FOUND 0)
-    set(ICU_DATA_LIBRARIES)
-  endif (ICU_DATA_LIBRARY)
-else(ICU_INCLUDE_DIR AND ICU_LIBRARY)
-  set(ICU_FOUND 0)
-  set(ICU_I18N_FOUND 0)
-  set(ICU_LIBRARIES)
-  set(ICU_I18N_LIBRARIES)
-  set(ICU_INCLUDE_DIRS)
-  set(ICU_VERSION)
-  set(ICU_MAJOR_VERSION)
-  set(ICU_MINOR_VERSION)
-endif(ICU_INCLUDE_DIR AND ICU_LIBRARY)
+  IF(ICU_FOUND)
+    IF( NOT ICU_FIND_QUIETLY )
+      MESSAGE( STATUS "Found ICU header files in ${ICU_INCLUDE_DIRS}")
+      MESSAGE( STATUS "Found ICU libraries: ${ICU_LIBRARIES}")
+    ENDIF( NOT ICU_FIND_QUIETLY )
+  ELSE(ICU_FOUND)
+    IF(ICU_FIND_REQUIRED)
+      MESSAGE( FATAL_ERROR "Could not find ICU" )
+    ELSE(ICU_FIND_REQUIRED)
+      MESSAGE( STATUS "Optional package ICU was not found" )
+    ENDIF(ICU_FIND_REQUIRED)
+  ENDIF(ICU_FOUND)
 
-IF(ICU_FOUND)
-  IF( NOT ICU_FIND_QUIETLY )
-    MESSAGE( STATUS "Found ICU header files in ${ICU_INCLUDE_DIRS}")
-    MESSAGE( STATUS "Found ICU libraries: ${ICU_LIBRARIES}")
-  ENDIF( NOT ICU_FIND_QUIETLY )
-ELSE(ICU_FOUND)
-  IF(ICU_FIND_REQUIRED)
-    MESSAGE( FATAL_ERROR "Could not find ICU" )
-  ELSE(ICU_FIND_REQUIRED)
-    MESSAGE( STATUS "Optional package ICU was not found" )
-  ENDIF(ICU_FIND_REQUIRED)
-ENDIF(ICU_FOUND)
+endif()
