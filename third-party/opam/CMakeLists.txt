@@ -10,16 +10,44 @@
 # This also avoids the need to depend on gpg in the installation.
 include(HPHPFunctions)
 
+set(OPAM_VERSION "2.3.0")
+
+if(LINUX)
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64"
+  )
+    message(STATUS "Using opam-${OPAM_VERSION}-x86_64-linux")
+    set(OPAM_URL "opam-${OPAM_VERSION}-x86_64-linux")
+    set(URL_HASH "SHA512=d4271d2387751313d5f904e8fdb3133ea893c72d09737139266d2bbe7624f81665a4276d2e55aa71856630ece8ce226b989560076599baae9afc053c5815f8c8")
+  else()
+    message(STATUS "Using opam-${OPAM_VERSION}-arm64-linux")
+    set(OPAM_URL "opam-${OPAM_VERSION}-arm64-linux")
+    set(URL_HASH "SHA512=a551cbaa44a6945e09b3daa3a3a7477821062d385037543cb71a188e4625c4ced76422689437aee602707076c1d16b68bed99ad5a31df98e69a8810dccb037b3")
+  endif()
+endif()
+
+if(APPLE)
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64"
+  )
+    message(STATUS "Using opam-${OPAM_VERSION}-x86_64-macos")
+    set(OPAM_URL "opam-${OPAM_VERSION}-x86_64-macos")
+    set(URL_HASH "SHA512=18c98cbbd986e33e06943522d0cce6725615406c4f072e7487a56242e2f03de0f436a674b590a5ebfbbe47b7819358926bd3ce71c5b847227b5d0d3de120d6ee")
+  else()
+    message(STATUS "Using opam-${OPAM_VERSION}-arm64-macos")
+    set(OPAM_URL "opam-${OPAM_VERSION}-arm64-macos")
+    set(URL_HASH "SHA512=45a6ca26eed3fe5937b1940f2c41c24517c0920d9632fd9eea3e0613411e85cb4126effd645d2915e37c65022aa0c483d2c98f8ce25dd8b70bb98e2c4ecd7804")
+  endif()
+endif()
+
 SET_HHVM_THIRD_PARTY_SOURCE_ARGS(
   OPAM_DOWNLOAD_ARGS
   Linux_URL
-  "https://github.com/ocaml/opam/releases/download/2.1.0/opam-2.1.0-x86_64-linux"
+  "https://github.com/ocaml/opam/releases/download/${OPAM_VERSION}/${OPAM_URL}"
   Darwin_URL
-  "https://github.com/ocaml/opam/releases/download/2.1.0/opam-2.1.0-x86_64-macos"
+  "https://github.com/ocaml/opam/releases/download/${OPAM_VERSION}/${OPAM_URL}"
   Linux_HASH
-  "SHA512=03c6a85f13a452749fdb2271731f3624a3993498ff2b304123231a8f2b26ccf1182d12119466e9a85f4de370fca51bd61d0eefe6280d3ca087cf4620fdc59a22"
+  "${URL_HASH}"
   Darwin_HASH
-  "SHA512=1c9acee545c851dd3701229e3a6aa7b5650620e37e01400d797a4b1fbeeb614adc459411283684e223a72fda8b14ba6c6e5482661485f888819f6a2a02e4d279"
+  "${URL_HASH}"
 )
 
 include(ExternalProject)
