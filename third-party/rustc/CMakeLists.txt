@@ -30,16 +30,43 @@ else()
 
   set(RUST_NIGHTLY_VERSION "2024-10-14")
 
+if(LINUX)
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64"
+  )
+    message(STATUS "Using rust-nightly-x86_64-unknown-linux-gnu")
+    set(RUST_PLATFORM_TAR "rust-nightly-x86_64-unknown-linux-gnu.tar.gz")
+    set(URL_HASH "SHA512=a4d6006d413022c72f6da8043affae0883fcfb0c8b7269933e90f1ec3238f0d14fa41a4656fa6069a2ee12956d0de09d6e2badf3d7be3e66de8902a075c6df83")
+  else()
+    message(STATUS "Using rust-nightly-aarch64-unknown-linux-gnu")
+    set(RUST_PLATFORM_TAR "rust-nightly-aarch64-unknown-linux-gnu.tar.gz")
+    set(URL_HASH "SHA512=3b839d3c08c923f915acd05879fd9e6078383850402c0a649f07e636fed2870ddd36a158fed6dc46d4a4e12e9ed5dfc1f459abb89f4f669be6a68db49b34c649")
+  endif()
+endif()
+
+if(APPLE)
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64"
+  )
+    message(STATUS "Using rust-nightly-x86_64-apple-darwin")
+    set(RUST_PLATFORM_TAR "rust-nightly-x86_64-apple-darwin.tar.gz")
+    set(URL_HASH "SHA512=f1e36f0adaa8e0c7c7504ae68b39545a45b5e2025e97309499f06295db89be9bafae5fb6c143a5214e95730fcd7f639a30250553f3bef435ebc86505d809223c")
+  else()
+    message(STATUS "Using rust-nightly-aarch64-apple-darwin.tar.gz")
+    set(RUST_PLATFORM_TAR "rust-nightly-aarch64-apple-darwin.tar.gz")
+    set(URL_HASH "SHA512=37eee196ee9d238f1f2ee62c1730e7a40afac779c8f3f3862e44c9f88efac064936fc1d8bb48795edcc263a4d91258d1a7638b71304e71e4ba7b74996b23375f")
+  endif()
+endif()
+
+
   SET_HHVM_THIRD_PARTY_SOURCE_ARGS(
     RUST_DOWNLOAD_ARGS
     Linux_URL
-    "https://static.rust-lang.org/dist/${RUST_NIGHTLY_VERSION}/rust-nightly-x86_64-unknown-linux-gnu.tar.gz"
+    "https://static.rust-lang.org/dist/${RUST_NIGHTLY_VERSION}/${RUST_PLATFORM_TAR}"
     Darwin_URL
-    "https://static.rust-lang.org/dist/${RUST_NIGHTLY_VERSION}/rust-nightly-x86_64-apple-darwin.tar.gz"
+    "https://static.rust-lang.org/dist/${RUST_NIGHTLY_VERSION}/${RUST_PLATFORM_TAR}"
     Linux_HASH
-    "SHA512=a4d6006d413022c72f6da8043affae0883fcfb0c8b7269933e90f1ec3238f0d14fa41a4656fa6069a2ee12956d0de09d6e2badf3d7be3e66de8902a075c6df83"
+    "${URL_HASH}"
     Darwin_HASH
-    "SHA512=f1e36f0adaa8e0c7c7504ae68b39545a45b5e2025e97309499f06295db89be9bafae5fb6c143a5214e95730fcd7f639a30250553f3bef435ebc86505d809223c"
+    "${URL_HASH}"
     # The original filename doesn't contain any version information, so add the version information as a prefix to avoid cache collisions when updating later
     FILENAME_PREFIX "rustc-${RUST_NIGHTLY_VERSION}-"
   )
