@@ -13,7 +13,11 @@ option(FORCE_TP_JEMALLOC "Always build and statically link jemalloc instead of u
 
 option(ENABLE_HHPROF "Enable HHProf" OFF)
 
-option(CLANG_FORCE_LIBCPP "Force using libc++ as the C++ standard library" OFF)
+if (APPLE)
+  option(CLANG_FORCE_LIBCPP "Force using libc++ as the C++ standard library" ON)
+else ()
+  option(CLANG_FORCE_LIBCPP "Force using libc++ as the C++ standard library" OFF)
+endif ()
 
 option(USE_TCMALLOC "Use tcmalloc (if jemalloc is not used)" ON)
 option(USE_GOOGLE_HEAP_PROFILER "Use Google heap profiler" OFF)
