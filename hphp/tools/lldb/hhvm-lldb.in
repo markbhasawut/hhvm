@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+HHVM_INSTALL_PREFIX="@CMAKE_INSTALL_PREFIX@"
+HHVM_INSTALL_LIBDIR="@CMAKE_INSTALL_LIBDIR@"
+HHVM_LIB="$HHVM_INSTALL_PREFIX/$HHVM_INSTALL_LIBDIR/hhvm"
+
+if [ -z "$HHVM_BIN" ] ; then
+  HHVM_BIN=$HHVM_INSTALL_PREFIX/bin/hhvm
+fi
+
+echo "Debugging with hhvm: $HHVM_BIN ..."
+
+lldb=lldb
+if ! command -v "$lldb" > /dev/null; then
+        echo "$lldb not found! Please install it." >&2
+        exit 1
+fi
+
+EXEC_CMD="--source $HHVM_BIN"
+if [ "$1" = "--args" ]; then
+  EXEC_CMD=""
+fi
+
+script_import="command script import \"$HHVM_LIB/lldb/hhvm.py\""
+
+# Call LLDB with the commands added to the argument list
+exec $lldb --one-line-before-file "$script_import" "$EXEC_CMD" "$@"
