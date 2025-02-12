@@ -10,9 +10,9 @@ ExternalProject_Add(
   bundled_tbb
   EXCLUDE_FROM_ALL
   SOURCE_DIR "${TBB_ROOT}"
+  BUILD_ALWAYS ON
   CONFIGURE_COMMAND ""
-  PATCH_COMMAND
-    patch -p4 < "${CMAKE_CURRENT_SOURCE_DIR}/pic_compile.patch" && patch -p4 < "${CMAKE_CURRENT_SOURCE_DIR}/clang_fix.patch"
+  PATCH_COMMAND ""
   BUILD_COMMAND
     # We only depend on TBB so we only build this target.
     cd <SOURCE_DIR> && make

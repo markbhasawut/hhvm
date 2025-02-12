@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2005-2018 Intel Corporation
+    Copyright (c) 2005-2022 Intel Corporation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-
-
-
 */
 
 #ifndef _itt_shared_malloc_MapMemory_H
@@ -23,16 +19,7 @@
 
 #include <stdlib.h>
 
-void *ErrnoPreservingMalloc(size_t bytes)
-{
-    int prevErrno = errno;
-    void *ret = malloc( bytes );
-    if (!ret)
-        errno = prevErrno;
-    return ret;
-}
-
-#if __linux__ || __APPLE__ || __sun || __FreeBSD__
+#if __unix__ || __APPLE__ || __sun || __FreeBSD__
 
 #if __sun && !defined(_XPG4_2)
  // To have void* as mmap's 1st argument
@@ -41,7 +28,7 @@ void *ErrnoPreservingMalloc(size_t bytes)
 #endif
 
 #include <sys/mman.h>
-#if __linux__
+#if __unix__
 /* __TBB_MAP_HUGETLB is MAP_HUGETLB from system header linux/mman.h.
    The header is not included here, as on some Linux flavors inclusion of
    linux/mman.h leads to compilation error,
@@ -57,7 +44,7 @@ void *ErrnoPreservingMalloc(size_t bytes)
  #undef XPG4_WAS_DEFINED
 #endif
 
-inline void* mmap_impl(size_t map_size, void* map_hint = NULL, int map_flags = 0) {
+inline void* mmap_impl(size_t map_size, void* map_hint = nullptr, int map_flags = 0) {
 #ifndef MAP_ANONYMOUS
 // macOS* defines MAP_ANON, which is deprecated in Linux*.
 #define MAP_ANONYMOUS MAP_ANON
@@ -76,7 +63,7 @@ inline void* mmapTHP(size_t bytes) {
 
     // Something went wrong
     if (result == MAP_FAILED) {
-        hint = NULL;
+        hint = nullptr;
         return MAP_FAILED;
     }
 
@@ -91,7 +78,7 @@ inline void* mmapTHP(size_t bytes) {
 
         // Something went wrong
         if (result == MAP_FAILED) {
-            hint = NULL;
+            hint = nullptr;
             return MAP_FAILED;
         }
 
@@ -103,7 +90,7 @@ inline void* mmapTHP(size_t bytes) {
             offset = HUGE_PAGE_SIZE - ((uintptr_t)result & (HUGE_PAGE_SIZE - 1));
             munmap(result, offset);
 
-            // New region begining
+            // New region beginning
             result = (void*)((uintptr_t)result + offset);
         }
 
@@ -112,7 +99,7 @@ inline void* mmapTHP(size_t bytes) {
     }
 
     // Assume, that mmap virtual addresses grow down by default
-    // So, set a hint as a result of a last successfull allocation
+    // So, set a hint as a result of a last successful allocation
     // and then use it minus requested size as a new mapping point.
     // TODO: Atomic store is meant here, fence not needed, but
     // currently we don't have such function.
@@ -126,7 +113,7 @@ inline void* mmapTHP(size_t bytes) {
 #define MEMORY_MAPPING_USES_MALLOC 0
 void* MapMemory (size_t bytes, PageType pageType)
 {
-    void* result = 0;
+    void* result = nullptr;
     int prevErrno = errno;
 
     switch (pageType) {
@@ -138,7 +125,7 @@ void* MapMemory (size_t bytes, PageType pageType)
         case PREALLOCATED_HUGE_PAGE:
         {
             MALLOC_ASSERT((bytes % HUGE_PAGE_SIZE) == 0, "Mapping size should be divisible by huge page size");
-            result = mmap_impl(bytes, NULL, __TBB_MAP_HUGETLB);
+            result = mmap_impl(bytes, nullptr, __TBB_MAP_HUGETLB);
             break;
         }
         case TRANSPARENT_HUGE_PAGE:
@@ -149,13 +136,13 @@ void* MapMemory (size_t bytes, PageType pageType)
         }
         default:
         {
-            MALLOC_ASSERT(NULL, "Unknown page type");
+            MALLOC_ASSERT(false, "Unknown page type");
         }
     }
 
     if (result == MAP_FAILED) {
         errno = prevErrno;
-        return 0;
+        return nullptr;
     }
 
     return result;
@@ -177,7 +164,7 @@ int UnmapMemory(void *area, size_t bytes)
 void* MapMemory (size_t bytes, PageType)
 {
     /* Is VirtualAlloc thread safe? */
-    return VirtualAlloc(NULL, bytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    return VirtualAlloc(nullptr, bytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
 int UnmapMemory(void *area, size_t /*bytes*/)
@@ -187,6 +174,15 @@ int UnmapMemory(void *area, size_t /*bytes*/)
 }
 
 #else
+
+void *ErrnoPreservingMalloc(size_t bytes)
+{
+    int prevErrno = errno;
+    void *ret = malloc( bytes );
+    if (!ret)
+        errno = prevErrno;
+    return ret;
+}
 
 #define MEMORY_MAPPING_USES_MALLOC 1
 void* MapMemory (size_t bytes, PageType)

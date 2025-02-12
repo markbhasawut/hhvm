@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2017-2018 Intel Corporation
+    Copyright (c) 2017-2021 Intel Corporation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-
-
-
 */
 
 #include "ipc_utils.h"
@@ -50,10 +46,10 @@ static char* get_stat_item(char* line, int item_id) {
             if( line[i]==')' ) {
                 ++i;
             } else {
-                return NULL;
+                return nullptr;
             }
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -66,22 +62,22 @@ unsigned long long get_start_time(int pid) {
     sprintf( stat_file_path, stat_file_path_template, pid );
 
     FILE* stat_file = fopen( stat_file_path, "rt" );
-    if( stat_file==NULL ) {
+    if( stat_file==nullptr ) {
         return 0;
     }
 
     char stat_line[MAX_STR_LEN + 1];
     char* line = fgets( stat_line, MAX_STR_LEN, stat_file );
-    if( line==NULL ) {
+    if( line==nullptr ) {
         return 0;
     }
 
     char* starttime_str = get_stat_item( stat_line, STARTTIME_ITEM_ID );
-    if( starttime_str==NULL ) {
+    if( starttime_str==nullptr ) {
         return 0;
     }
 
-    unsigned long long starttime = strtoull( starttime_str, NULL, 10 );
+    unsigned long long starttime = strtoull( starttime_str, nullptr, 10 );
     if( starttime==ULLONG_MAX ) {
         return 0;
     }
@@ -108,26 +104,26 @@ char* get_shared_name(const char* prefix) {
 }
 
 int get_num_threads(const char* env_var) {
-    if( env_var==NULL ) {
+    if( env_var==nullptr ) {
         return 0;
     }
 
     char* value = getenv( env_var );
-    if( value==NULL ) {
+    if( value==nullptr ) {
         return 0;
     }
 
-    int num_threads = (int)strtol( value, NULL, 10 );
+    int num_threads = (int)strtol( value, nullptr, 10 );
     return num_threads;
 }
 
 bool get_enable_flag(const char* env_var) {
-    if( env_var==NULL ) {
+    if( env_var==nullptr ) {
         return false;
     }
 
     char* value = getenv( env_var );
-    if( value==NULL ) {
+    if( value==nullptr ) {
         return false;
     }
 
@@ -141,4 +137,4 @@ bool get_enable_flag(const char* env_var) {
     return true;
 }
 
-}}} //tbb::internal::rml
+}}} // namespace tbb::internal::rml
