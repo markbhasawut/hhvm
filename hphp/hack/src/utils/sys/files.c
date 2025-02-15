@@ -16,7 +16,9 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 #ifdef __linux__
 #include <linux/magic.h>
@@ -25,11 +27,16 @@
 
 void hh_lutimes(value filename_v) {
   CAMLparam1(filename_v);
+#ifdef _WIN32
+  /* Not implemented */
+  CAMLreturn0;
+#else
   const char* filename = String_val(filename_v);
   int success = lutimes(filename, NULL);
   if (success != 0) {
     caml_failwith("lutimes failed");
   }
+#endif
   CAMLreturn0;
 }
 

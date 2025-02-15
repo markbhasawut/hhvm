@@ -616,6 +616,7 @@ void StandardExtension::registerNativeNetwork() {
   HHVM_RC_INT_SAME(LOG_PERROR);
 #endif
 
+#ifndef _WIN32
   HHVM_RC_INT_SAME(LOG_LOCAL0);
   HHVM_RC_INT_SAME(LOG_LOCAL1);
   HHVM_RC_INT_SAME(LOG_LOCAL2);
@@ -624,6 +625,7 @@ void StandardExtension::registerNativeNetwork() {
   HHVM_RC_INT_SAME(LOG_LOCAL5);
   HHVM_RC_INT_SAME(LOG_LOCAL6);
   HHVM_RC_INT_SAME(LOG_LOCAL7);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
