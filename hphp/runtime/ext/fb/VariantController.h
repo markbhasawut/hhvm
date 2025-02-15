@@ -14,10 +14,8 @@
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
 */
-
-#pragma once
-
-#ifndef HPHP_OSS
+#ifndef VARIANTCONTROLLER_H
+#define VARIANTCONTROLLER_H
 
 #include "hphp/runtime/base/array-init.h"
 #include "hphp/runtime/base/array-iterator.h"
@@ -26,10 +24,7 @@
 #include "hphp/runtime/base/datatype.h"
 
 #include "hphp/runtime/ext/extension.h"
-
-#include "hphp/util/configs/eval.h"
-
-#include "common/serialize/FBSerialize.h"
+#include "hphp/runtime/ext/fb/FBSerialize/FBSerialize.h"
 
 #include <algorithm>
 #include <utility>
@@ -94,16 +89,15 @@ struct VariantControllerImpl {
         if (obj.toFuncVal()->isMethCaller()) {
           throw HPHP::serialize::MethCallerSerializeError();
         }
-        [[fallthrough]];
       case KindOfClass:
       case KindOfLazyClass:
       case KindOfPersistentString:
       case KindOfString:     return HPHP::serialize::Type::STRING;
       case KindOfObject:
-        if (Cfg::Eval::ForbidMethCallerHelperSerialize &&
+        if (RO::EvalForbidMethCallerHelperSerialize &&
             obj.asCObjRef().get()->getVMClass() ==
-              SystemLib::getMethCallerHelperClass()) {
-          if (Cfg::Eval::ForbidMethCallerHelperSerialize == 1) {
+              SystemLib::s_MethCallerHelperClass) {
+          if (RO::EvalForbidMethCallerHelperSerialize == 1) {
             raise_warning("Serializing MethCallerHelper");
           } else {
             throw HPHP::serialize::MethCallerSerializeError();
@@ -157,7 +151,6 @@ struct VariantControllerImpl {
         );
 
       case KindOfResource:
-      case KindOfEnumClassLabel:
         throw HPHP::serialize::SerializeError(
           "don't know how to serialize HPHP Variant");
       case KindOfRFunc:
@@ -213,14 +206,7 @@ struct VariantControllerImpl {
   static String mapKeyAsString(const Variant& k) {
     return k.toString();
   }
-  static bool mapExistsStringKey(const MapType& map, const StringType& key) {
-    return map.exists(key);
-  }
-  static VariantType mapAtStringKey(
-      const MapType& map,
-      const StringType& key) {
-    return map[key];
-  }
+
   static void mapSet(MapType& map, StringType&& k, VariantType&& v) {
     auto constexpr IC = [&]{
       switch (HackArraysMode) {
@@ -253,7 +239,6 @@ struct VariantControllerImpl {
     map.setIntishCast(idx, k, std::move(v));
   }
   static int64_t mapSize(const MapType& map) { return map.size(); }
-  static int64_t mapSize(const_variant_ref map) { return map.toArray().size(); }
   static ArrayIter mapIterator(const MapType& map) {
     return ArrayIter(map);
   }
@@ -278,9 +263,6 @@ struct VariantControllerImpl {
   }
   static int64_t vectorSize(const VectorType& vec) {
     return vec.size();
-  }
-   static int64_t vectorSize(const_variant_ref vec) {
-    return vec.toArray().size();
   }
   static void vectorAppend(VectorType& vec, const VariantType& v) {
     if constexpr (HackArraysMode == VariantControllerHackArraysMode::OFF) {
@@ -320,7 +302,7 @@ struct VariantControllerImpl {
     return !it.end();
   }
   static void setNext(ArrayIter& it) { ++it; }
-  static Variant setValue(ArrayIter& it) { return it.first(); }
+  static Variant setValue(ArrayIter& it) { return it.second(); }
 
   // string methods
   static StringType createMutableString(size_t n) {
@@ -375,4 +357,4 @@ using VariantControllerPostHackArrayMigration =
 }
 
 
-#endif // HPHP_OSS
+#endif

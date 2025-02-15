@@ -28,15 +28,9 @@
 #include <folly/String.h>
 #include <folly/portability/Sockets.h>
 
-#ifndef HPHP_OSS
-#include "common/serialize/FBSerialize.h"
-#endif
-
-#include "hphp/util/configs/eval.h"
 #include "hphp/util/htonll.h"
 #include "hphp/util/logger.h"
 #include "hphp/runtime/base/array-init.h"
-#include "hphp/runtime/base/backtrace.h"
 #include "hphp/runtime/base/builtin-functions.h"
 #include "hphp/runtime/base/code-coverage.h"
 #include "hphp/runtime/base/file.h"
@@ -44,14 +38,15 @@
 #include "hphp/runtime/base/plain-file.h"
 #include "hphp/runtime/base/unit-cache.h"
 #include "hphp/runtime/base/intercept.h"
+#include "hphp/runtime/base/runtime-option.h"
 #include "hphp/runtime/base/stat-cache.h"
 #include "hphp/runtime/base/string-buffer.h"
 #include "hphp/runtime/base/string-util.h"
 #include "hphp/runtime/base/request-info.h"
 #include "hphp/runtime/base/tv-type.h"
 #include "hphp/runtime/base/type-variant.h"
-#include "hphp/runtime/base/code-coverage-util.h"
 #include "hphp/runtime/ext/std/ext_std_function.h"
+#include "hphp/runtime/ext/fb/FBSerialize/FBSerialize.h"
 #include "hphp/runtime/ext/fb/VariantController.h"
 #include "hphp/runtime/server/xbox-server.h"
 #include "hphp/runtime/vm/unwind.h"
@@ -118,7 +113,6 @@ enum TType {
 const StaticString s_invalidMethCallerSerde("Cannot serialize meth_caller");
 
 Variant HHVM_FUNCTION(fb_serialize, const Variant& thing, int64_t options) {
-#ifndef HPHP_OSS
   try {
     if (options & k_FB_SERIALIZE_POST_HACK_ARRAY_MIGRATION) {
       size_t len = HPHP::serialize
@@ -186,16 +180,12 @@ Variant HHVM_FUNCTION(fb_serialize, const Variant& thing, int64_t options) {
   } catch (const HPHP::serialize::SerializeError&) {
     return init_null();
   }
-#else
-    return init_null();
-#endif
 }
 
 Variant HHVM_FUNCTION(fb_unserialize,
                       const Variant& thing,
                       bool& success,
                       int64_t options) {
-#ifndef HPHP_OSS
   if (thing.isString()) {
     String sthing = thing.toString();
 
@@ -207,13 +197,11 @@ Variant HHVM_FUNCTION(fb_unserialize,
       return fb_unserialize(sthing.data(), sthing.size(), success, options);
     }
   }
-#endif
 
   success = false;
   return false;
 }
 
-#ifndef HPHP_OSS
 Variant fb_unserialize(const char* str,
                        int len,
                        bool& success,
@@ -557,7 +545,6 @@ static int fb_compact_serialize_variant(
           VarNR{s_invalidMethCallerSerde.get()}
         );
       }
-      [[fallthrough]];
     case KindOfPersistentString:
     case KindOfString:
     case KindOfClass:
@@ -602,10 +589,10 @@ static int fb_compact_serialize_variant(
     }
 
     case KindOfObject:
-      if (Cfg::Eval::ForbidMethCallerHelperSerialize &&
+      if (RO::EvalForbidMethCallerHelperSerialize &&
           var.asCObjRef().get()->getVMClass() ==
-            SystemLib::getMethCallerHelperClass()) {
-        if (Cfg::Eval::ForbidMethCallerHelperSerialize == 1) {
+            SystemLib::s_MethCallerHelperClass) {
+        if (RO::EvalForbidMethCallerHelperSerialize == 1) {
           fb_compact_serialize_code(sb, FB_CS_NULL);
           raise_warning("Serializing MethCallerHelper");
         } else {
@@ -615,7 +602,6 @@ static int fb_compact_serialize_variant(
         }
         break;
       }
-      [[fallthrough]];
     case KindOfResource:
       fb_compact_serialize_code(sb, FB_CS_NULL);
       raise_warning(
@@ -626,11 +612,6 @@ static int fb_compact_serialize_variant(
     case KindOfRFunc:
       SystemLib::throwInvalidOperationExceptionObject(
         "Unable to serialize reified function pointer"
-      );
-      break;
-    case KindOfEnumClassLabel:
-      SystemLib::throwInvalidOperationExceptionObject(
-        "Unable to serialize enum class label"
       );
       break;
   }
@@ -666,18 +647,10 @@ String fb_compact_serialize(const Variant& thing, int64_t options) {
   return sb.detach();
 }
 
-#endif // HPHP_OSS
-
 Variant HHVM_FUNCTION(
     fb_compact_serialize, const Variant& thing, int64_t options) {
-#ifndef HPHP_OSS
   return fb_compact_serialize(thing, options);
-#else
-  return String();
-#endif
 }
-
-#ifndef HPHP_OSS
 
 /* Check if there are enough bytes left in the buffer */
 #define CHECK_ENOUGH(bytes, pos, num) do {                                \
@@ -921,12 +894,9 @@ Variant fb_compact_unserialize(const char* str, int len,
   return ret;
 }
 
-#endif // HPHP_OSS
-
 Variant HHVM_FUNCTION(fb_compact_unserialize,
                       const Variant& thing, bool& success,
                       Variant& errcode) {
-#ifndef HPHP_OSS
   if (!thing.isString()) {
     success = false;
     errcode = FB_UNSERIALIZE_NONSTRING_VALUE;
@@ -935,11 +905,6 @@ Variant HHVM_FUNCTION(fb_compact_unserialize,
 
   String s = thing.toString();
   return fb_compact_unserialize(s.data(), s.size(), success, errcode);
-#else
-    success = false;
-    errcode = 0;
-    return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -979,11 +944,11 @@ bool HHVM_FUNCTION(fb_utf8ize, Variant& input) {
 
   // There are invalid bytes. Allocate memory, then copy the input, replacing
   // invalid sequences with either the substitution character or nothing,
-  // depending on the value of Cfg::Server::Utf8izeReplace.
+  // depending on the value of RuntimeOption::Utf8izeReplace.
   //
   // Worst case, every remaining byte is invalid, taking a 3-byte substitution.
   int32_t bytesRemaining = srcLenBytes - srcPosBytes;
-  uint64_t dstMaxLenBytes = srcPosBytes + (Cfg::Server::Utf8izeReplace ?
+  uint64_t dstMaxLenBytes = srcPosBytes + (RuntimeOption::Utf8izeReplace ?
     bytesRemaining * U8_LENGTH(SUBSTITUTION_CHARACTER) :
     bytesRemaining);
   if (dstMaxLenBytes > INT_MAX) {
@@ -1008,7 +973,7 @@ bool HHVM_FUNCTION(fb_utf8ize, Variant& input) {
     if (curCodePoint <= 0) {
       // Invalid UTF-8 sequence.
       // N.B. We consider a null byte an invalid sequence.
-      if (!Cfg::Server::Utf8izeReplace) {
+      if (!RuntimeOption::Utf8izeReplace) {
         continue; // Omit invalid sequence
       }
       curCodePoint = SUBSTITUTION_CHARACTER; // Replace invalid sequences
@@ -1054,32 +1019,6 @@ int64_t HHVM_FUNCTION(fb_utf8_strlen, const String& input) {
 
 int64_t HHVM_FUNCTION(fb_utf8_strlen_deprecated, const String& input) {
   return fb_utf8_strlen_impl(input, /* deprecated */ true);
-}
-
-StaticString s_substitution_str("\ufffd");
-
-Array HHVM_FUNCTION(fb_utf8_decompose, StringArg input) {
-  const size_t len = input->size();
-  if (!len) return empty_vec_array();
-
-  VecInit ret{len};
-  auto const bufp = input->data();
-  int32_t next = 0;
-  do {
-    auto off = next;
-    UChar32 codePoint;
-    U8_NEXT(bufp, next, len, codePoint);
-
-    if (UNLIKELY(codePoint < 0)) {
-      ret.append(StrNR{s_substitution_str.get()}.asString());
-    } else if (LIKELY(next == off + 1)) {
-      ret.append(StrNR{precomputed_chars[uint8_t(bufp[off])]}.asString());
-    } else {
-      ret.append(String{&bufp[off], size_t(next - off), CopyString});
-    }
-  } while (next < len);
-
-  return ret.toArray();
 }
 
 /**
@@ -1190,7 +1129,7 @@ bool HHVM_FUNCTION(fb_intercept2, const String& name, const Variant& handler) {
 bool HHVM_FUNCTION(fb_rename_function, const String& orig_func_name,
                                        const String& new_func_name) {
   if (orig_func_name.empty() || new_func_name.empty() ||
-      orig_func_name.get()->fsame(new_func_name.get())) {
+      orig_func_name.get()->isame(new_func_name.get())) {
     raise_invalid_argument_warning("unable to rename %s", orig_func_name.data());
     return false;
   }
@@ -1237,27 +1176,19 @@ void HHVM_FUNCTION(fb_enable_code_coverage) {
     raise_notice("Calling fb_enable_code_coverage from a nested "
                  "VM instance may cause unpredicable results");
   }
-  if (Cfg::Eval::EnableCodeCoverage == 0) {
+  if (RuntimeOption::EvalEnableCodeCoverage == 0) {
     SystemLib::throwRuntimeExceptionObject(
       "Calling fb_enable_code_coverage without enabling the setting "
       "Eval.EnableCodeCoverage");
   }
-  if (Cfg::Eval::EnableCodeCoverage == 1) {
-    if (!isEnableCodeCoverageReqParamTrue()) {
+  if (RuntimeOption::EvalEnableCodeCoverage == 1) {
+    auto const tport = g_context->getTransport();
+    if (!tport ||
+        tport->getParam("enable_code_coverage").compare("true") != 0) {
       SystemLib::throwRuntimeExceptionObject(
         "Calling fb_enable_code_coverage without adding "
         "'enable_code_coverage' in request params");
     }
-  }
-  if (isEnablePerFileCoverageReqParamTrue()) {
-    SystemLib::throwRuntimeExceptionObject(
-      "Calling fb_enable_code_coverage with "
-      "'enable_per_file_coverage' in request params");
-  }
-  if (Cfg::Eval::EnablePerFileCoverage == 2) {
-    SystemLib::throwRuntimeExceptionObject(
-      "Calling fb_enable_code_coverage with "
-      "Eval.EnablePerFileCoverage=2");
   }
 }
 
@@ -1381,40 +1312,6 @@ int64_t HHVM_FUNCTION(HH_int_mul_add_overflow,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Product attribution id
-
-void HHVM_FUNCTION(set_product_attribution_id, int64_t) {
-  SystemLib::throwInvalidArgumentExceptionObject(
-    "Unsupported dynamic call of set_product_attribution_id()");
-}
-
-void HHVM_FUNCTION(set_product_attribution_id_deferred, const Variant&) {
-  SystemLib::throwInvalidArgumentExceptionObject(
-    "Unsupported dynamic call of set_product_attribution_id_deferred()");
-}
-
-Variant HHVM_FUNCTION(get_product_attribution_id_internal) {
-  // The caller of this function always eagerly syncs the vmregs, so in
-  // non-debug mode this anchor should be a no-op.
-  VMRegAnchor _;
-
-  Variant result{Variant::NullInit()};
-  walkStack([&] (const BTFrame& frm) {
-    auto const func = frm.func();
-    if (!(func->attrs() & AttrHasAttributionData)) return false;
-    if (!frm.localsAvailable()) return false; // can this be an assert instead?
-    auto local = func->lookupVarId(s_86productAttributionData.get());
-    assertx(local != kInvalidId);
-    auto const val = frm.local(local);
-    assertx(tvIsPlausible(*val));
-    if (val->type() == KindOfUninit) return false; // skip over uninit vals
-    result = Variant{variant_ref{val}};
-    return true;
-  });
-  return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // xbox APIs
 
 namespace {
@@ -1454,11 +1351,11 @@ Variant HHVM_FUNCTION(fb_call_user_func_array_async, const String& initialDoc,
   return XboxServer::TaskStart(internal_serialize(msg), initialDoc);
 }
 
-Variant HHVM_FUNCTION(fb_check_user_func_async, const OptResource& handle) {
+Variant HHVM_FUNCTION(fb_check_user_func_async, const Resource& handle) {
   return XboxServer::TaskStatus(handle);
 }
 
-Variant HHVM_FUNCTION(fb_end_user_func_async, const OptResource& handle) {
+Variant HHVM_FUNCTION(fb_end_user_func_async, const Resource& handle) {
   Variant ret;
   int code = XboxServer::TaskResult(handle, 0, &ret);
   if (code != 200) {
@@ -1494,7 +1391,7 @@ Variant HHVM_FUNCTION(fb_gen_user_func_array, const String& initialDoc,
 struct FBExtension : Extension {
   FBExtension(): Extension("fb", "1.0.0", NO_ONCALL_YET) {}
 
-  void moduleRegisterNative() override {
+  void moduleInit() override {
     HHVM_RC_BOOL(HHVM_FACEBOOK, HHVM_FACEBOOK_FLAG);
     HHVM_RC_INT_SAME(FB_UNSERIALIZE_NONSTRING_VALUE);
     HHVM_RC_INT_SAME(FB_UNSERIALIZE_UNEXPECTED_END);
@@ -1519,7 +1416,6 @@ struct FBExtension : Extension {
     HHVM_FE(fb_utf8_strlen);
     HHVM_FE(fb_utf8_strlen_deprecated);
     HHVM_FE(fb_utf8_substr);
-    HHVM_FE(fb_utf8_decompose);
     HHVM_FE(fb_intercept2);
     HHVM_FE(fb_rename_function);
     HHVM_FE(fb_get_code_coverage);
@@ -1538,14 +1434,12 @@ struct FBExtension : Extension {
     HHVM_FALIAS(HH\\int_mul_overflow, HH_int_mul_overflow);
     HHVM_FALIAS(HH\\int_mul_add_overflow, HH_int_mul_add_overflow);
 
-    HHVM_FALIAS(HH\\set_product_attribution_id, set_product_attribution_id);
-    HHVM_FALIAS(HH\\set_product_attribution_id_deferred, set_product_attribution_id_deferred);
-    HHVM_FALIAS(HH\\get_product_attribution_id_internal, get_product_attribution_id_internal);
-
     HHVM_FE(fb_call_user_func_array_async);
     HHVM_FE(fb_check_user_func_async);
     HHVM_FE(fb_end_user_func_async);
     HHVM_FE(fb_gen_user_func_array);
+
+    loadSystemlib();
   }
 } s_fb_extension;
 
