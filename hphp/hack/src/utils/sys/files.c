@@ -92,7 +92,12 @@ CAMLprim value hh_open_tmpfile(value rd_v, value wr_v, value dir_v, value file_p
   const int file_perm = Int_val(file_perm_v);
   const int rd = Bool_val(rd_v);
   const int wr = Bool_val(wr_v);
+#ifdef __APPLE__
+// On OSX, O_TMPFILE is not defined.
+  int flags = ((rd && wr) ? O_RDWR : rd ? O_RDONLY : wr ? O_WRONLY : 0);
+#else
   int flags = __O_TMPFILE | ((rd && wr) ? O_RDWR : rd ? O_RDONLY : wr ? O_WRONLY : 0);
+#endif
 
   // Unix.openfile also uses caml_{enter,leave}_blocking_section to allow domain
   // concurrency while this blocking operation is underway. That's not needed for
