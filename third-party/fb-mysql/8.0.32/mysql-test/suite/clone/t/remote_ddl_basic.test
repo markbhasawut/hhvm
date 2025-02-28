@@ -1,0 +1,9 @@
+# Test remote clone error with concurrent DDL
+--source include/not_as_root.inc
+
+--let $HOST = 127.0.0.1
+--let $PORT =`select @@port`
+--let $USER = root
+--let remote_clone = 1
+
+--source ddl_basic.test

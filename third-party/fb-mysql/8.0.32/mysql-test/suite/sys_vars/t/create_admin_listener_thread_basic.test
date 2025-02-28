@@ -1,0 +1,84 @@
+--disable_query_log
+CALL mtr.add_suppression("Failed to initialize TLS for channel: mysql_admin");
+CALL mtr.add_suppression("Failed to set up SSL because of the following SSL library error");
+--enable_query_log
+
+#
+# only global
+#
+select @@global.create_admin_listener_thread;
+--error ER_INCORRECT_GLOBAL_LOCAL_VAR
+select @@session.create_admin_listener_thread;
+show global variables like 'create_admin_listener_thread';
+show session variables like 'create_admin_listener_thread';
+--disable_warnings
+select * from performance_schema.global_variables where variable_name='create_admin_listener_thread';
+select * from performance_schema.session_variables where variable_name='create_admin_listener_thread';
+select * from performance_schema.variables_info where variable_name='create_admin_listener_thread';
+--enable_warnings
+--replace_column 1 # 12 # 17 #
+--query_vertical select * from performance_schema.threads where name="thread/sql/admin_interface"
+
+#
+# show that it's read-only
+#
+--error ER_INCORRECT_GLOBAL_LOCAL_VAR
+set global create_admin_listener_thread=1;
+--error ER_INCORRECT_GLOBAL_LOCAL_VAR
+set session create_admin_listener_thread=1;
+--error ER_INCORRECT_GLOBAL_LOCAL_VAR
+set persist create_admin_listener_thread=1;
+
+#
+# Set the option and verify that it is reflected
+#
+--let $PORT_OFFSET = 1
+--expr $ADMIN_PORT = $MASTER_MYPORT + $PORT_OFFSET
+--let $restart_parameters=restart: --skip-name-resolve --admin-address=127.0.0.1 --admin_port=$ADMIN_PORT --create-admin-listener-thread=1
+--replace_result $ADMIN_PORT ADMIN_PORT
+--source include/restart_mysqld.inc
+
+--disable_query_log
+--disable_result_log
+
+# The place to add validation of CPU scheduler features.
+let $thread_pool_loaded= `SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'THREAD_POOL'`;
+if ($thread_pool_loaded) {
+  # Verify that collecting all stack traces does not break any threads.
+  # Raise log level to ERR (4000) to avoid the huge printout in the log
+  # and then back to INFO (2000 or default).
+  set global thread_pool_log_level=4000;
+  set global thread_pool_collect_stack_trace_tid=0;
+  set global thread_pool_collect_stack_trace_tid=default;
+  set global thread_pool_log_level=default;
+  sleep 5;
+}
+
+--enable_result_log
+--enable_query_log
+
+select name, type from performance_schema.threads where name="thread/sql/admin_interface";
+
+CREATE USER admin_user IDENTIFIED BY 'abcd';
+GRANT ALL ON *.* TO admin_user;
+
+--connect(admin_con,127.0.0.1,admin_user,abcd,,$ADMIN_PORT,,TCP)
+--connection admin_con
+
+--disable_warnings
+select * from performance_schema.global_variables where variable_name='create_admin_listener_thread';
+select * from performance_schema.session_variables where variable_name='create_admin_listener_thread';
+--enable_warnings
+
+--disconnect admin_con
+--source include/wait_until_disconnected.inc
+--connection default
+
+--echo #
+--echo # Starting mysqld in the regular mode...
+--echo #
+--let $restart_parameters=
+--source include/restart_mysqld.inc
+
+# Cleanup.
+DROP USER admin_user;

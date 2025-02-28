@@ -1,0 +1,22 @@
+
+--let $status_tab = status_tmp
+--let $status_like = 'rocksdb_vectors_%'
+
+--source include/show_status_init.inc
+
+--echo
+--echo Testing with RANGE TREE / ITERATOR BOUNDS based PK FILTERING TURNED OFF
+--echo
+set session fb_vector_use_iterator_bounds = off;
+--echo
+
+--source vectordb_pk_filtering.inc
+
+--echo
+--echo Testing with RANGE TREE / ITERATOR BOUNDS based PK FILTERING TURNED ON
+--echo
+set session fb_vector_use_iterator_bounds = on;
+--echo
+
+--source vectordb_pk_filtering.inc
+

@@ -1,0 +1,228 @@
+--source include/have_rocksdb.inc
+--source include/count_sessions.inc
+# TODO(chni): Remove it once Rocksdb changes the error message and type
+--source include/skip_udt_in_mem.inc
+
+--let LOG1=$MYSQLTEST_VARDIR/tmp/rocksdb.bulk_load_errors.1.err
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+--let restart_parameters="restart: --log-error=$LOG1"
+--source include/restart_mysqld.inc
+
+### Bulk load ###
+CREATE TABLE t1(pk INT, PRIMARY KEY(pk)) ENGINE=ROCKSDB;
+
+# Make sure we get an error with out of order keys during bulk load
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(10);
+INSERT INTO t1 VALUES(11);
+--error ER_KEYS_OUT_OF_ORDER
+INSERT INTO t1 VALUES(9);
+SET rocksdb_bulk_load=0;
+
+# Make sure only 10 and 11 got into the table
+SELECT * FROM t1;
+
+# Make sure we get an error with overlapping data
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(1);
+INSERT INTO t1 VALUES(2);
+INSERT INTO t1 VALUES(20);
+INSERT INTO t1 VALUES(21);
+
+--error ER_OVERLAPPING_KEYS
+SET rocksdb_bulk_load=0;
+
+SHOW VARIABLES LIKE 'rocksdb_bulk_load';
+
+SELECT * FROM t1;
+
+--let SEARCH_FILE=$LOG1
+--let SEARCH_PATTERN=RocksDB: Error 504 finalizing last SST file while setting bulk loading variable
+--source include/search_pattern_in_file.inc
+
+--let LOG2=$MYSQLTEST_VARDIR/tmp/rocksdb.bulk_load_errors.2.err
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+--let restart_parameters="restart: --log-error=$LOG2"
+--source include/restart_mysqld.inc
+--remove_file $LOG1
+
+
+# Make sure we get an error in log when we disconnect and do not assert the server
+--connect (con1,localhost,root,,)
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(1);
+INSERT INTO t1 VALUES(2);
+INSERT INTO t1 VALUES(20);
+INSERT INTO t1 VALUES(21);
+let $ID = `SELECT connection_id()`;
+--connection default
+--disconnect con1
+
+SELECT * FROM t1;
+
+#if (`SELECT $RPC_PROTOCOL > 0`) {
+  # for --rpc_protocol mode wait for the background detached session to
+  # go away
+#  let $wait_condition =
+#      SELECT COUNT(*) = 0
+#      FROM information_schema.srv_sessions
+#      WHERE id = $ID;
+#  --source include/wait_condition.inc
+#}
+
+#if (`SELECT $RPC_PROTOCOL = 0`) {
+  # for non --rpc_protocol mode simply wait until the number of sessions
+  # returns to earlier levels
+  --source include/wait_until_count_sessions.inc
+#}
+
+SELECT * FROM t1;
+
+--let LOG3=$MYSQLTEST_VARDIR/tmp/rocksdb.bulk_load_errors.3.err
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+--let restart_parameters="restart: --log-error=$LOG3"
+--source include/restart_mysqld.inc
+--remove_file $LOG2
+
+TRUNCATE TABLE t1;
+
+### Bulk load with unsorted PKs ###
+SET rocksdb_bulk_load_allow_unsorted=1;
+
+# We should not get an error with out of order PKs
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(100);
+INSERT INTO t1 VALUES(101);
+INSERT INTO t1 VALUES(99);
+SET rocksdb_bulk_load=0;
+SELECT * FROM t1;
+TRUNCATE TABLE t1;
+
+# We should get an error with duplicate PKs in the same bulk load
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(201);
+INSERT INTO t1 VALUES(200);
+INSERT INTO t1 VALUES(202);
+--error ER_DUP_ENTRY
+INSERT INTO t1 VALUES(201);
+SET rocksdb_bulk_load=0;
+SELECT * FROM t1;
+
+SET rocksdb_bulk_load_allow_unsorted=DEFAULT;
+DROP TABLE t1;
+
+# This would trigger a debug assertion that is just an error in release builds
+CREATE TABLE t1(c1 INT KEY) ENGINE=ROCKSDB;
+SET rocksdb_bulk_load=1;
+--error ER_KEYS_OUT_OF_ORDER
+INSERT INTO t1 VALUES (),(),();
+SET rocksdb_bulk_load=0;
+DROP TABLE t1;
+
+# forbid alter/drop table before bulk load operation finalized
+CREATE TABLE t1(a INT AUTO_INCREMENT, b INT, PRIMARY KEY (a)) ENGINE=ROCKSDB DEFAULT CHARSET=latin1;
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES(1, 0);
+INSERT INTO t1 VALUES(2, 'test 2');
+INSERT INTO t1 VALUES(3, @arg04);
+INSERT INTO t1 VALUES(4,1);
+echo alter/drop table is not allowed in a ongoing bulk load;
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+ALTER TABLE t1 ADD COLUMN c int;
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+DROP TABLE t1;
+
+connect (con1,localhost,root,,);
+echo on a different connection;
+echo alter/drop table is not allowed during a ongoing bulk load;
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+ALTER TABLE t1 ADD COLUMN c int;
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+DROP TABLE t1;
+
+connection default;
+INSERT INTO t1 VALUES(5,1);
+SET rocksdb_bulk_load=0;
+
+select * from t1;
+echo alter/drop will succeed after bulk load complete;
+ALTER TABLE t1 ADD COLUMN c int;
+select * from t1;
+
+
+# some alter statements are allowed in bulk load
+SET rocksdb_bulk_load=1;
+CREATE TABLE t2 (
+  id bigint NOT NULL AUTO_INCREMENT,
+  val int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  key key1(val)
+);
+
+ALTER TABLE t2 DISABLE KEYS;
+insert into t2 values (1, 1);
+ALTER TABLE t2 ENABLE KEYS;
+
+ALTER TABLE t2 DISABLE KEYS;
+insert into t2 values (2, 1);
+ALTER TABLE t2 ENABLE KEYS;
+insert into t2 values (3, 1);
+
+# other alters are still not allowed
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+alter table t2 drop index key1;
+replace_regex /Conflict bulk load [^ ]+/Conflict bulk load <ID>/;
+error ER_DA_BULK_LOAD;
+ALTER TABLE t2 ADD COLUMN c int;
+insert into t2 values (4, 1);
+SET rocksdb_bulk_load=0;
+
+select * from t2;
+
+
+DROP TABLE t1, t2;
+
+--let LOG4=$MYSQLTEST_VARDIR/tmp/rocksdb.bulk_load_errors.4.err
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+--let restart_parameters="restart: --log-error=$LOG4"
+--source include/restart_mysqld.inc
+
+--remove_file $LOG3
+
+# Switch between tables, but also introduce duplicate key errors
+CREATE TABLE t1 (pk INT, PRIMARY KEY (pk)) ENGINE=ROCKSDB;
+CREATE TABLE t2 (pk INT, PRIMARY KEY (pk)) ENGINE=ROCKSDB;
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES (1), (2);
+INSERT INTO t2 VALUES (1), (2);
+INSERT INTO t1 VALUES (1);
+--error ER_OVERLAPPING_KEYS
+INSERT INTO t2 VALUES (3);
+SET rocksdb_bulk_load=0;
+DROP TABLE t1;
+DROP TABLE t2;
+
+# fail when bulk load cannot make the sst table go to the bottomest level
+CREATE TABLE t1 (pk INT, PRIMARY KEY (pk)) ENGINE=ROCKSDB;
+SET rocksdb_bulk_load_fail_if_not_bottommost_level=1;
+INSERT INTO t1 VALUES (1), (10);
+SET GLOBAL ROCKSDB_FORCE_FLUSH_MEMTABLE_NOW=1;
+SET rocksdb_bulk_load=1;
+INSERT INTO t1 VALUES (2);
+INSERT INTO t1 VALUES (22);
+--error ER_UNKNOWN_ERROR
+SET rocksdb_bulk_load=0;
+DROP TABLE t1;
+
+--let SEARCH_FILE=$LOG4
+--let SEARCH_PATTERN=MyRocks: failed to bulk load. status code = 4
+--source include/search_pattern_in_file.inc
+
+--remove_file $LOG4
+
+--source include/wait_until_count_sessions.inc

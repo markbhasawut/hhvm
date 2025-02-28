@@ -1,0 +1,9 @@
+[innodb_ddse]
+
+[rocksdb_ddse]
+default_dd_system_storage_engine = rocksdb
+
+[udt-in-mem]
+enable_binlog_hlc=true
+maintain_database_hlc=true
+rocksdb_enable_udt_in_mem=true
