@@ -27,6 +27,7 @@
 #include "hphp/util/hugetlb.h"
 #include "hphp/util/numa.h"
 #include "hphp/util/trace.h"
+#include "util/alloc-defs.h"
 
 namespace HPHP::jit {
 
@@ -224,29 +225,75 @@ CodeCache::CodeCache() {
     return;
   }
 
-  auto const maxTCExtent = getTCMaxExtent(usedBase);
-  if (usedBase + totalSize > maxTCExtent) {
-    cutTCSizeTo(maxTCExtent - usedBase - thread_local_size);
-    new (this) CodeCache;
-    return;
+#if USE_JEMALLOC
+  if constexpr (use_position_dependent_jemalloc_arenas) {
+    // When we have a low arena, TC must fit below lowArenaMinAddr(). If it
+    // doesn't, we shrink things to make it so.
+    auto const lowArenaStart = lowArenaMinAddr();
+    if (Cfg::Server::Mode) {
+      Logger::Info("lowArenaMinAddr(): 0x%lx", lowArenaStart);
+    }
+    always_assert_flog(
+      usedBase + (32u << 20) <= lowArenaStart,
+      "brk is too big for LOWPTR build (usedBase = {}, lowArenaStart = {})",
+      usedBase, lowArenaStart
+    );
+
+    if (usedBase + m_totalSize > lowArenaStart) {
+      cutTCSizeTo(lowArenaStart - usedBase - thread_local_size);
+      new (this) CodeCache;
+      return;
+    }
+    always_assert_flog(
+      usedBase + m_totalSize <= lowArenaStart,
+      "computed allocationSize ({}) is too large to fit within "
+      "lowArenaStart ({}), usedBase = {}\n",
+      m_totalSize, lowArenaStart, usedBase
+    );
   }
-  always_assert_flog(
-    usedBase + totalSize <= maxTCExtent,
-    "computed allocationSize ({}) is too large to fit within "
-    "lowArenaStart ({}), usedBase = {}\n",
-    totalSize, maxTCExtent, usedBase
-  );
-
-  if (!mapTC(usedBase, totalSize)) {
-    cutTCSizeTo(totalSize / 2);
-    new (this) CodeCache;
-    return;
+#endif
+  // Use MAP_FIXED_NOREPLACE instead of MAP_FIXED so we actually get
+  // an error if we overlap with an existing mapping.
+  auto const allocBase =
+    (uintptr_t)mmap(reinterpret_cast<void*>(usedBase), m_totalSize,
+                    PROT_READ | PROT_WRITE,
+                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
+  if (allocBase != usedBase) {
+#ifdef FOLLY_SANITIZE
+    // If we hit an already existing mapping when running sanitizers,
+    // it's almost certainly because of the ASAN shadow region (which
+    // starts just below the 2GB mark). Keep halving the TC size until
+    // we no longer collide. This isn't a big deal because we don't
+    // expect to run the JIT that much when running sanitizers.
+    if (errno == EEXIST) {
+      if (Cfg::Server::Mode) {
+        Logger::FWarning(
+          "Reducing TC sizes from {:,} to {:,}, "
+          "due to possible ASAN collision\n",
+          m_totalSize, m_totalSize / 2
+        );
+      }
+      cutTCSizeTo(m_totalSize / 2);
+      new (this) CodeCache;
+      return;
+    }
+#endif
+    always_assert_flog(
+      false,
+      "mmap failed for translation cache (error = {})",
+      errno == EEXIST ? "allocated range overlap" : strerror(errno)
+    );
   }
+  always_assert_flog(allocBase >= tc_start_address(),
+                     "unexpected tc start address movement");
+  CodeAddress base = reinterpret_cast<CodeAddress>(usedBase);
+  m_base = base;
 
-  m_base = reinterpret_cast<CodeAddress>(usedBase);
-  numa_interleave(m_base, totalSize);
-  m_all.init(m_base, totalSize, "all");
+  numa_interleave(base, m_totalSize);
 
+  TRACE(1, "init a @%p\n", m_base);
+
+  m_main.init(base, kASize, "main");
   uint32_t hugeMainMBs = Cfg::CodeCache::TCNumHugeHotMB + Cfg::CodeCache::TCNumHugeMainMB;
   // Don't map more pages to huge pages than kASize.  And if we're not in
   // jumpstart consumer mode, then we'll need to generate profiling code, which
