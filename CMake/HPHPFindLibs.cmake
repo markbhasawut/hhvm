@@ -436,6 +436,10 @@ macro(hphp_link target)
   target_link_libraries(${target} ${VISIBILITY} afdt)
   target_link_libraries(${target} ${VISIBILITY} mbfl)
 
+  if (LINUX)
+    target_link_libraries(${target} ${VISIBILITY} ${LIBUNWIND_LIBRARIES})
+  endif()
+
   if (EDITLINE_LIBRARIES)
     target_link_libraries(${target} ${VISIBILITY} ${EDITLINE_LIBRARIES})
   elseif (READLINE_LIBRARY)
