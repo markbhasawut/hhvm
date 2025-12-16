@@ -19,6 +19,8 @@
 extern "C" {
 #include <xed-interface.h>
 }
+#else
+#include <cstdint>
 #endif // __x86_64__
 
 #include <ostream>
