@@ -14,10 +14,8 @@
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
 */
-
-#pragma once
-
-#ifndef HPHP_OSS
+#ifndef VARIANTCONTROLLER_H
+#define VARIANTCONTROLLER_H
 
 #include "hphp/runtime/base/array-init.h"
 #include "hphp/runtime/base/array-iterator.h"
@@ -410,4 +408,4 @@ using VariantControllerPostHackArrayMigration =
 }
 
 
-#endif // HPHP_OSS
+#endif
