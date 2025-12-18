@@ -119,5 +119,7 @@ endif ()
 
 add_subdirectory(tools/gdb)
 
+include(test/dso_test/dso_test.cmake)
+
 # Keep this last
 add_subdirectory(tools/hphpize)
