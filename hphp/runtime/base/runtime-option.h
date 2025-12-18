@@ -360,6 +360,11 @@ struct RuntimeOption {
 
   static hphp_string_map<TypedValue> ConstantFunctions;
 
+  static std::string ExtensionDir;
+  static std::vector<std::string> Extensions;
+  static std::string DynamicExtensionPath;
+  static std::vector<std::string> DynamicExtensions;
+
   static std::vector<std::string> TzdataSearchPaths;
   static std::map<std::string, std::string> GFlags;
 

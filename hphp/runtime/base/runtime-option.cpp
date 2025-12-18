@@ -1732,6 +1732,16 @@ void RuntimeOption::Load(
     }
   ));
 
+  // Extensions
+  Config::Bind(RuntimeOption::ExtensionDir, ini, config, "extension_dir",
+               RuntimeOption::ExtensionDir, false);
+  Config::Bind(RuntimeOption::DynamicExtensionPath, ini,
+               config, "DynamicExtensionPath",
+               RuntimeOption::DynamicExtensionPath);
+  Config::Bind(RuntimeOption::Extensions, ini, config, "extensions");
+  Config::Bind(RuntimeOption::DynamicExtensions, ini,
+               config, "DynamicExtensions");
+
   ExtensionRegistry::moduleLoad(ini, config);
   initialize_apc();
 

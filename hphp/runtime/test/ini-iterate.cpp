@@ -48,6 +48,7 @@ TEST(IniSetting, ini_iterate) {
 
   // Check some runtime options
   EXPECT_EQ(22222222, Cfg::CodeCache::AColdSize);
+  EXPECT_EQ("", RuntimeOption::ExtensionDir);
 }
 
 }
