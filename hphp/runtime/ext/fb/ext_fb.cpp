@@ -28,8 +28,6 @@
 #include <folly/String.h>
 #include <folly/portability/Sockets.h>
 
-#include "common/serialize/FBSerialize.h"
-
 #include "hphp/util/configs/eval.h"
 #include "hphp/util/htonll.h"
 #include "hphp/util/logger.h"
@@ -48,6 +46,7 @@
 #include "hphp/runtime/base/type-variant.h"
 #include "hphp/runtime/base/code-coverage-util.h"
 #include "hphp/runtime/ext/std/ext_std_function.h"
+#include "hphp/runtime/ext/fb/FBSerialize/FBSerialize.h"
 #include "hphp/runtime/ext/fb/VariantController.h"
 #include "hphp/runtime/server/xbox-server.h"
 #include "hphp/runtime/vm/unwind.h"

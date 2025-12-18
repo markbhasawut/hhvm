@@ -27,7 +27,7 @@
 
 #include "hphp/util/configs/eval.h"
 
-#include "common/serialize/FBSerialize.h"
+#include "hphp/runtime/ext/fb/FBSerialize/FBSerialize.h"
 
 #include <algorithm>
 #include <utility>
