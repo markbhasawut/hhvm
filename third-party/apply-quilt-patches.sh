@@ -50,22 +50,46 @@ if [ -n "$HHVM_TP_QUILT" ]; then
   exec "${HHVM_TP_QUILT}" --quiltrc - push -a
 fi
 
-echo "$0: applying patches in series, not using quilt."
+echo "$0: applying patches in $QUILT_PATCHES manually."
 
-cat "$QUILT_PATCHES/series" | while read PATCH_FILE; do
+if [ -f "$QUILT_PATCHES/series" ]; then
+  PATCH_LIST=$(grep -v '^#' "$QUILT_PATCHES/series" | grep -v '^$')
+else
+  PATCH_LIST=$(ls "$QUILT_PATCHES"/*.patch 2>/dev/null | xargs -n 1 basename)
+fi
+
+for PATCH_FILE in $PATCH_LIST; do
   echo "Applying patch '$PATCH_FILE'..."
+  
   if [ -e ".quilt_$PATCH_FILE.stamp" ]; then
     echo "...skipping, already applied."
-  elif patch -p1 --force < "$QUILT_PATCHES/$PATCH_FILE"; then
-    touch ".quilt_$PATCH_FILE.stamp"
-    echo "... applied patch $PATCH_FILE."
-  else
-    if patch -p1 --reverse --force --dry-run < "$QUILT_PATCHES/$PATCH_FILE"; then
-      echo "Failed to apply, appears to have been merged upstream."
-    else
-      echo "Failed to apply patch '$PATCH_FILE.'"
+    continue
+  fi
+
+  PATCH_PATH="$QUILT_PATCHES/$PATCH_FILE"
+  SUCCESS=0
+
+  # Try different -p levels to apply the patch
+  for level in 1 2 4 0; do
+    if patch -p$level --force --dry-run < "$PATCH_PATH" > /dev/null 2>&1; then
+      patch -p$level --force < "$PATCH_PATH"
+      touch ".quilt_$PATCH_FILE.stamp"
+      echo "... applied patch $PATCH_FILE at -p$level."
+      SUCCESS=1
+      break
     fi
-    exit 1
+  done
+
+  if [ $SUCCESS -eq 0 ]; then
+    # Final check: is it already merged/applied?
+    if patch -p1 --reverse --force --dry-run < "$PATCH_PATH" > /dev/null 2>&1; then
+      echo "... appears to have been merged upstream. Marking as applied."
+      touch ".quilt_$PATCH_FILE.stamp"
+    else
+      echo "ERROR: Failed to apply patch '$PATCH_FILE.' (Path mismatch or conflict)"
+      exit 1
+    fi
   fi
 done
+
 echo "Applied all patches!"
