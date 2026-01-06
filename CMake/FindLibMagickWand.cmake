@@ -19,7 +19,10 @@ if (LIBMAGICKWAND_LIBRARIES AND LIBMAGICKWAND_INCLUDE_DIRS)
 endif (LIBMAGICKWAND_LIBRARIES AND LIBMAGICKWAND_INCLUDE_DIRS)
 
 set (ImageMagick_FIND_QUIETLY TRUE)
-find_package(ImageMagick COMPONENTS MagickWand MagickCore)
+# Only call find_package if the targets don't exist yet
+if (NOT TARGET ImageMagick::MagickWand)
+  find_package(ImageMagick COMPONENTS MagickWand MagickCore)
+endif ()
 if (ImageMagick_MagickWand_FOUND)
   set (LIBMAGICKWAND_INCLUDE_DIRS ${ImageMagick_MagickWand_INCLUDE_DIR} ${ImageMagick_MagickWand_ARCH_INCLUDE_DIR} CACHE STRING "")
   set (LIBMAGICKWAND_LIBRARIES ${ImageMagick_MagickWand_LIBRARY} CACHE STRING "")
@@ -63,7 +66,7 @@ include (FindPackageHandleStandardArgs)
 
 
 # handle the QUIETLY and REQUIRED arguments and set LIBMAGICKWAND_FOUND to TRUE if all listed variables are TRUE
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibMagicWand DEFAULT_MSG
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibMagickWand DEFAULT_MSG
   LIBMAGICKWAND_LIBRARIES
   LIBMAGICKCORE_LIBRARIES
   LIBMAGICKWAND_INCLUDE_DIRS)
