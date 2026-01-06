@@ -294,6 +294,9 @@ endif()
 # Needed by fbthrift.
 find_package(Xxhash REQUIRED)
 
+# hash extension dependency
+find_package(Blake3 REQUIRED)
+
 include_directories(${HPHP_HOME}/hphp)
 
 macro(hphp_link target)

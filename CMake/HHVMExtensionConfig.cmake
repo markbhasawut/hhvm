@@ -995,6 +995,18 @@ function (HHVM_EXTENSION_INTERNAL_HANDLE_LIBRARY_DEPENDENCY extensionID dependen
         HHVM_EXTENSION_INTERNAL_ADD_DEFINES("-DLIBEXSLT_STATIC=1")
       endif()
     endif()
+  elseif (${libraryName} STREQUAL "blake3")
+    find_package(Blake3 ${requiredVersion})
+    if (NOT BLAKE3_INCLUDE_DIR OR NOT BLAKE3_LIBRARY)
+      HHVM_EXTENSION_INTERNAL_SET_FAILED_DEPENDENCY(${extensionID} ${dependencyName})
+      return()
+    endif()
+
+    if (${addPaths})
+      HHVM_EXTENSION_INTERNAL_ADD_INCLUDE_DIRS(${BLAKE3_INCLUDE_DIR})
+      HHVM_EXTENSION_INTERNAL_ADD_LINK_LIBRARIES(${BLAKE3_LIBRARY})
+      HHVM_EXTENSION_INTERNAL_ADD_DEFINES("-DHAVE_LIBBLAKE3")
+    endif()
   elseif (TARGET "${dependencyName}")
     # If we have libfoo, resolve as libfoo
     message(STATUS "Resolving extension '${HHVM_EXTENSION_${extensionID}_NAME}' dependency '${dependencyName}' as CMake target")
