@@ -32,7 +32,8 @@ ExternalProject_Add(
     &&
     "${CMAKE_COMMAND}" -E copy
     "${CMAKE_CURRENT_SOURCE_DIR}/config-impl.h"
-    "mcrouter/"
+    "mcrouter/" 
+    &&
     "${CMAKE_CURRENT_SOURCE_DIR}/../apply-quilt-patches.sh"
     "${CMAKE_CURRENT_SOURCE_DIR}/patches"
   CMAKE_ARGS
@@ -47,8 +48,6 @@ ExternalProject_Add(
     -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
     -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-
-    -DMCROUTER_OSS_BUILD
 
     "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
     "-DBOOST_INCLUDE_DIR=$<TARGET_PROPERTY:boost,INTERFACE_INCLUDE_DIRECTORIES>"
