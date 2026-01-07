@@ -17,13 +17,15 @@ ExternalProject_Add(
   BUILD_COMMAND
     # We only depend on TBB so we only build this target.
     cd <SOURCE_DIR> && make
+      -j ${nproc}
+      compiler=clang
       work_dir=<INSTALL_DIR>
       tbb_root=${TBB_ROOT}
       CC=${CMAKE_C_COMPILER}
       CFLAGS=${CMAKE_C_FLAGS}
       CXX=${CMAKE_CXX_COMPILER}
       CXXFLAGS=${CMAKE_CXX_FLAGS}
-      LDFLAGS="${CMAKE_STATIC_LINKER_FLAGS} -Wl,--undefined-version"
+      LDFLAGS="-Wl,--undefined-version"
       tbb
   INSTALL_COMMAND ""
 )

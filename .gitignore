@@ -2,6 +2,7 @@
 *.hhbc
 *.rej
 *.orig
+.cache/*
 .merlin
 .mkdir
 .DS_Store
