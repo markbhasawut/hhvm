@@ -22,7 +22,7 @@ get_target_property(GLOG_LIBRARY glog INTERFACE_LINK_LIBRARIES)
 ExternalProject_Add(
   bundled_wangle
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/
-  BUILD_ALWAYS ON
+  BUILD_ALWAYS OFF
   PATCH_COMMAND
     "${CMAKE_COMMAND}" -E copy
     "${CMAKE_SOURCE_DIR}/CMake/FindLibSodium.cmake"

@@ -30,7 +30,7 @@ message(STATUS "FOLLY_CXXFLAGS: ${FOLLY_CXXFLAGS}")
 ExternalProject_add(
   bundled_folly
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/
-  BUILD_ALWAYS ON
+  BUILD_ALWAYS OFF
   PATCH_COMMAND
     "${CMAKE_CURRENT_SOURCE_DIR}/../apply-quilt-patches.sh"
     "${CMAKE_CURRENT_SOURCE_DIR}/patches"

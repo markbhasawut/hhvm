@@ -17,7 +17,7 @@ set(WATCHMAN_DEPS folly boost fmt jemalloc double-conversion)
 ExternalProject_Add(
   bundled_watchman
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/
-  BUILD_ALWAYS ON
+  BUILD_ALWAYS OFF
   PATCH_COMMAND
     "${CMAKE_COMMAND}" -E copy
     "${CMAKE_CURRENT_SOURCE_DIR}/cppclient-CMakeLists.txt"
