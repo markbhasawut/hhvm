@@ -1,4 +1,6 @@
 option(BUILD_HACK "True if we should build the Hack typechecker." ON)
+option(SKIP_OPAM "Skip setting up a local opam root for building Hack" OFF)
+option(DEBUG "Enable debug mode" OFF)
 
 include(CMakeParseArguments)
 
@@ -41,7 +43,7 @@ if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
   set(RUST_FFI_BUILD_ROOT "${DUNE_BUILD_DIR}/rust_ffi")
   set(CARGO_HOME "${DUNE_BUILD_DIR}/cargo_home")
 else()
-  set(DUNE_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  set(DUNE_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_dune")
   set(RUST_FFI_BUILD_ROOT "${CMAKE_BINARY_DIR}")
   set(CARGO_HOME "${CMAKE_CURRENT_BINARY_DIR}/cargo_home")
   set(OPAM_STAMP_FILE "opam.stamp")
@@ -50,21 +52,25 @@ set(HACK_BUILD_ROOT "${DUNE_BUILD_DIR}/default")
 
 get_target_property(OPAM_EXECUTABLE opam IMPORTED_LOCATION)
 
-add_custom_command(
-  OUTPUT "${OPAM_STAMP_FILE}"
-  DEPENDS opam opam_setup.sh
-  COMMAND
-    ${CMAKE_CURRENT_SOURCE_DIR}/opam_setup.sh
-    "${OPAM_EXECUTABLE}"
-    "${DUNE_BUILD_DIR}"
-    && cmake -E touch "${OPAM_STAMP_FILE}"
-)
-add_custom_target(opam_setup DEPENDS "${OPAM_STAMP_FILE}" opam_setup.sh)
-
 if (SKIP_OPAM)
+  # If skipping opam, just create a dummy target so dependencies don't break.
+  # We do NOT run the script, avoiding the path conflict.
   set(OPAMROOT "~/.opam")
-else ()
+  add_custom_target(opam_setup)
+  message(STATUS "Skipping opam_setup.sh execution")
+else()
+  # Only run the setup script if we are NOT skipping opam
   set(OPAMROOT "${DUNE_BUILD_DIR}/opam")
+  add_custom_command(
+    OUTPUT "${OPAM_STAMP_FILE}"
+    DEPENDS opam opam_setup.sh
+    COMMAND
+      ${CMAKE_CURRENT_SOURCE_DIR}/opam_setup.sh
+      "${OPAM_EXECUTABLE}"
+      "${DUNE_BUILD_DIR}"
+      && cmake -E touch "${OPAM_STAMP_FILE}"
+  )
+  add_custom_target(opam_setup DEPENDS "${OPAM_STAMP_FILE}" opam_setup.sh)
 endif()
 
 if(LZ4_FOUND)
@@ -121,10 +127,14 @@ invoke_dune(hack_dune all)
 
 set(INVOKE_CARGO "${CMAKE_SOURCE_DIR}/hphp/hack/scripts/invoke_cargo.sh")
 
-if(DEFINED ENV{HACKDEBUG})
+if(DEBUG)
   set(PROFILE "debug")
+  set(HACKDEBUG 1)
+  set(DUNE_PROFILE "dev")
 else()
   set(PROFILE "release")
+  set(HACKDEBUG 0)
+  set(DUNE_PROFILE "release")
 endif()
 
 set(RUST_OPCODES_DIR "${CMAKE_BINARY_DIR}/hphp/hack/src/hackc")
@@ -307,16 +317,43 @@ target_include_directories(hack_rust_ffi_bridge PRIVATE "${FFI_BRIDGE_BIN}/cxxbr
 
 
 set(HH_FANOUT_EXECUTABLE "${HACK_BUILD_ROOT}/target/hh_fanout_oss/${PROFILE}/hh_fanout")
+set(HH_FANOUT_STAGED_PATH "${CMAKE_CURRENT_BINARY_DIR}/bin/hh_fanout")
+
 add_custom_command(
-  OUTPUT ${HH_FANOUT_EXECUTABLE}
+  OUTPUT ${HH_FANOUT_STAGED_PATH} ${HH_FANOUT_EXECUTABLE}
   COMMAND
-   . "${CMAKE_CURRENT_BINARY_DIR}/dev_env_rust_only.sh" &&
-    ${INVOKE_CARGO} hh_fanout_oss hh_fanout_oss --exe
+   . "${CMAKE_CURRENT_BINARY_DIR}/dev_env_rust_only.sh" && 
+   ${INVOKE_CARGO} hh_fanout_oss hh_fanout_oss --exe &&
+   ${CMAKE_COMMAND} -E copy "${HH_FANOUT_EXECUTABLE}" "${HH_FANOUT_STAGED_PATH}"
   DEPENDS opam_setup rustc cargo
   COMMENT "Building hh_fanout"
+  VERBATIM
 )
 
-add_custom_target(hh_fanout DEPENDS ${HH_FANOUT_EXECUTABLE})
+add_custom_target(hh_fanout DEPENDS ${HH_FANOUT_EXECUTABLE} ${HH_FANOUT_STAGED_PATH})
+
+set(HACKC_EXECUTABLE "${HACK_BUILD_ROOT}/target/hackc/${PROFILE}/hackc")
+set(HACKC_STAGED_PATH "${CMAKE_CURRENT_BINARY_DIR}/bin/hackc")
+
+# Define the required library directory
+set(UTIL_LIB_DIR "${CMAKE_BINARY_DIR}/hphp/util")
+
+add_custom_command(
+  OUTPUT ${HACKC_STAGED_PATH} ${HACKC_EXECUTABLE}
+  COMMAND
+    . "${CMAKE_CURRENT_BINARY_DIR}/dev_env_rust_only.sh" &&
+    ${CMAKE_COMMAND} -E env 
+      CXX=${CMAKE_CXX_COMPILER} 
+      "LIBRARY_PATH=${UTIL_LIB_DIR}:$ENV{LIBRARY_PATH}"
+      "RUSTFLAGS=-C link-arg=-fuse-ld=lld -L native=${UTIL_LIB_DIR} -l static=hphp_util"
+      ${INVOKE_CARGO} hackc hackc --exe &&
+    ${CMAKE_COMMAND} -E copy "${HACKC_EXECUTABLE}" "${HACKC_STAGED_PATH}"
+  DEPENDS opam_setup rustc cargo hphp_util
+  COMMENT "Building hackc"
+  VERBATIM
+)
+
+add_custom_target(hackc DEPENDS ${HACKC_EXECUTABLE} ${HACKC_STAGED_PATH})
 
 if (NOT LZ4_FOUND)
   add_dependencies(hack_dune lz4)
@@ -350,6 +387,10 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hh_parse
   DESTINATION bin
   COMPONENT dev)
 
-install(PROGRAMS ${HH_FANOUT_EXECUTABLE}
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hh_fanout
+  DESTINATION bin
+  COMPONENT dev)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hackc
   DESTINATION bin
   COMPONENT dev)

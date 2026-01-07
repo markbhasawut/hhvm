@@ -2,7 +2,8 @@
  cargo
  hh_fanout_build_rust
  hh_fanout_dep_graph_is_subgraph_rust
- hh_fanout_dep_graph_stats_rust)
+ hh_fanout_dep_graph_stats_rust
+ hh_fanout_oss)
 
 (library
  (name hh_fanout_build_rust)
@@ -54,3 +55,14 @@
    %{workspace_root}/hack/scripts/invoke_cargo.sh
    hh_fanout_dep_graph_stats_rust
    hh_fanout_dep_graph_stats_rust)))
+
+(rule
+ (targets hh_fanout)
+ (deps
+  (source_tree %{workspace_root}/hack/src))
+ (locks /cargo)
+ (action
+  (run
+   %{workspace_root}/hack/scripts/invoke_cargo.sh
+   hh_fanout_oss
+   hh_fanout_oss)))

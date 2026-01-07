@@ -43,18 +43,20 @@ if [ -z "${TARGET_DIR}" ]; then
   TARGET_DIR="${HACK_BUILD_ROOT}/target/$pkg"
 fi
 
-if [ -z ${HACKDEBUG+1} ]; then
+HACKDEBUG="${HACKDEBUG:-0}"
+
+if [ "${HACKDEBUG}" -eq 0 ]; then
   profile=release; profile_flags="--release"
+  BUILD_PARAMS+=(--quiet)
 else
   profile=debug; profile_flags=
+  BUILD_PARAMS+=(--verbose)
 fi
-
-BUILD_PARAMS+=(--quiet)
 BUILD_PARAMS+=(--target-dir "${TARGET_DIR}")
 BUILD_PARAMS+=(--package "$pkg")
 BUILD_PARAMS+=("$profile_flags")
 
-export RUSTFLAGS="-A non-local-definitions"
+export RUSTFLAGS="${RUSTFLAGS} -A non-local-definitions"
 
 ( # add CARGO_BIN to PATH so that rustc and other tools can be invoked
   [[ -n "$CARGO_BIN" ]] && PATH="$CARGO_BIN:$PATH";
@@ -63,7 +65,7 @@ export RUSTFLAGS="-A non-local-definitions"
   if [ -z "$bin" ]; then
     cargo build "${BUILD_PARAMS[@]}"
   else
-    cargo run --bin "$bin" -- "$@"
+    cargo run "${BUILD_PARAMS[@]}" --bin "$bin" -- "$@"
   fi
 ) &&
 if [ -z "$exe" ] && [ -z "$bin" ]; then

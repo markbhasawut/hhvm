@@ -30,7 +30,7 @@ clean:
 # 1=exe 2=        (literaly nothing, not even a space)
 # 1=bc 2=-debug
 define build_hack
-$(eval ext := $(if $(filter $(2),-debug),".bc",""))
+$(eval profile := $(if $(filter $(2),-debug),dev,$(or $(DUNE_PROFILE),release)))
 build-hack$(2):
 	dune build \
 		src/hh_server.$(1) \
