@@ -23,7 +23,7 @@ ExternalProject_Add(
   PATCH_COMMAND
     "${CMAKE_COMMAND}" -E copy
     "${CMAKE_SOURCE_DIR}/CMake/FindBoost.cmake"
-    <SOURCE_DIR>/wangle/cmake/FindBoost.cmake
+    <SOURCE_DIR>/wangle/cmake/FindBoost.cmake &&
     "${CMAKE_CURRENT_SOURCE_DIR}/../apply-quilt-patches.sh"
     "${CMAKE_CURRENT_SOURCE_DIR}/patches"
   CMAKE_ARGS
