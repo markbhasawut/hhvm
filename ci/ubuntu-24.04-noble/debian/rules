@@ -18,17 +18,18 @@ override_dh_auto_configure:
 	-DFORCE_BUNDLED_LZ4=Off \
 	-DENABLE_XED=Off \
 	-DENABLE_EXTENSION_MCRYPT=Off \
-	-DENABLE_MCROUTER=Off \
-	-DENABLE_EXTENSION_IMAGICK=Off \
+	-DENABLE_MCROUTER=On \
+	-DENABLE_EXTENSION_IMAGICK=On \
 	-DRUSTC_EXECUTABLE=/root/.cargo/bin/rustc \
 	-DCARGO_EXECUTABLE=/root/.cargo/bin/cargo \
-	-DSKIP_OPAM
+	-DOPAM_EXECUTABLE=/usr/local/bin/opam \
+	-DSKIP_OPAM=On
 	
 	chmod -R 777 obj-$(DEB_HOST_GNU_TYPE)
 
 override_dh_auto_build:
 	dh_auto_build --parallel -- bundled_folly
-	dh_auto_build --no-parallel -- hack hack_rust_ffi_bridge hhbc_ast_cbindgen hack_dune || dh_auto_build --no-parallel -- hack hack_rust_ffi_bridge hhbc_ast_cbindgen hack_dune
+	dh_auto_build --no-parallel -- hack hack_rust_ffi_bridge hhbc_ast_cbindgen hack_dune hh_fanout hackc || dh_auto_build --no-parallel -- hack hack_rust_ffi_bridge hhbc_ast_cbindgen hack_dune hh_fanout hackc
 	dh_auto_build --parallel
 
 override_dh_strip:
