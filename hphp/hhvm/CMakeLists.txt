@@ -4,27 +4,43 @@ set(CXX_SOURCES)
 auto_sources(files "*.cpp" "")
 list(APPEND CXX_SOURCES ${files})
 
-option(ENABLE_LD_GOLD "Enable Hot Linker script using ld-gold" On)
+option(ENABLE_LD_GOLD "Enable Hot Linker script using ld-gold" OFF)
+option(ENABLE_LD_LLD "Enable LLD linker" On)
+
 set(SECTION_ORDERING_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../tools/oss_hot_section_ordering CACHE FILEPATH "File used by ld-gold for the relocation of sections")
 
 if (MAP_TEXT_HUGE_PAGES)
     file(STRINGS "${SECTION_ORDERING_FILE}" SECTION_ORDERING_CONTENTS)
-    list(GET SECTION_ORDERING_CONTENTS 0 HOT_START)
-    list(GET SECTION_ORDERING_CONTENTS -1 HOT_END)
-    string(REGEX REPLACE "\\.text\\.(.*)\\*" "\\1" HOT_START ${HOT_START})
-    string(REGEX REPLACE "\\.text\\.(.*)\\*" "\\1" HOT_END ${HOT_END})
-    set(DEFSYM_HOT_START "--defsym=__hot_start=${HOT_START},")
-    set(DEFSYM_HOT_END "--defsym=__hot_end=${HOT_END},")
+    list(GET SECTION_ORDERING_CONTENTS 0 HOT_START_RAW)
+    list(GET SECTION_ORDERING_CONTENTS -1 HOT_END_RAW)
+    string(REGEX REPLACE "\\.text\\.(.*)\\*" "\\1" HOT_START_SYM ${HOT_START_RAW})
+    string(REGEX REPLACE "\\.text\\.(.*)\\*" "\\1" HOT_END_SYM ${HOT_END_RAW})
+    
+    if (ENABLE_LD_LLD)
+      set(HHVM_HOT_FLAGS 
+        "-Wl,--defsym=__hot_start=${HOT_START_SYM}" 
+        "-Wl,--defsym=__hot_end=${HOT_END_SYM}"
+      )
+    else()
+      # Legacy Gold Fallback
+      set(DEFSYM_HOT_START "--defsym=__hot_start=${HOT_START_SYM},")
+      set(DEFSYM_HOT_END "--defsym=__hot_end=${HOT_END_SYM},")
+    endif()
 endif()
 
 if (ENABLE_LD_GOLD)
   find_package(Gold)
 endif()
 
+if (ENABLE_LD_LLD)
+  find_package(lld)
+endif()
+
 get_object_libraries_objects(additionalObjects ${HHVM_WHOLE_ARCHIVE_LIBRARIES})
 add_executable(hhvm ${CXX_SOURCES} ${additionalObjects})
 target_link_libraries(hhvm ${HHVM_LINK_LIBRARIES} ${EZC_LINK_LIBRARIES} ${HRE_LINK_LIBRARIES})
 link_object_libraries(hhvm ${HHVM_WHOLE_ARCHIVE_LIBRARIES})
+
 if (GOLD_FOUND AND ENABLE_LD_GOLD)
   if (CMAKE_CONFIGURATION_TYPES)
     SET(LINKER_SCRIPT -fuse-ld=gold;-Wl,--icf=all,--gc-sections;release;-Wl,${DEFSYM_HOT_START}${DEFSYM_HOT_END}--section-ordering-file,${SECTION_ORDERING_FILE};default)
@@ -35,6 +51,14 @@ if (GOLD_FOUND AND ENABLE_LD_GOLD)
   endif()
   target_link_libraries(hhvm ${LINKER_SCRIPT})
 endif()
+
+if (LLD_FOUND AND ENABLE_LD_LLD)
+  # Emit relocation metadata used for Bolt optimizations.
+  set(LINKER_SCRIPT -fuse-ld=lld -Wl,-q,--icf=all,--gc-sections)
+  message(STATUS "LLD configured with BOLT relocations and CG-profile sorting.")
+  target_link_libraries(hhvm ${LINKER_SCRIPT} ${HHVM_HOT_FLAGS})
+endif()
+
 hphp_link(hhvm)
 HHVM_CONFIGURE_TARGET_FOR_EXTENSION_DEPENDENCIES(hhvm)
 
@@ -42,11 +66,18 @@ HHVM_CONFIGURE_TARGET_FOR_EXTENSION_DEPENDENCIES(hhvm)
 target_sources(hhvm PUBLIC ../hack/src/utils/ocaml_ffi_mock/ocaml.c)
 
 if (ENABLE_SPLIT_DWARF)
-  if (NOT GOLD_FOUND)
-    message(FATAL_ERROR "ENABLE_SPLIT_DWARF was specified but the gold linker was not found")
+  if (NOT GOLD_FOUND AND NOT ENABLE_LD_LLD)
+    message(FATAL_ERROR "ENABLE_SPLIT_DWARF was specified but no compatible linker (Gold/LLD) was found")
   endif()
+  
   message(STATUS "Enabled split DWARF files")
-  target_link_libraries(hhvm debug "-Wl,--gdb-index")
+  
+  if (ENABLE_LD_LLD)
+    target_link_options(hhvm PRIVATE "-Wl,--gdb-index")
+  else()
+    # Traditional Gold path
+    target_link_libraries(hhvm debug "-Wl,--gdb-index")
+  endif()
 endif()
 
 embed_all_systemlibs(hhvm "${CMAKE_CURRENT_BINARY_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/hhvm")
