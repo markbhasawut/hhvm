@@ -84,10 +84,27 @@ embed_all_systemlibs(hhvm "${CMAKE_CURRENT_BINARY_DIR}/.." "${CMAKE_CURRENT_BINA
 add_dependencies(hhvm systemlib)
 
 if (CMAKE_HOST_UNIX)
+  # List mirrors symlinks.sh: hphp, php, and hhbbc
+  set(HHVM_SYMLINKS "hphp" "php" "hhbbc")
+  
   add_custom_command(TARGET hhvm POST_BUILD
     COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/symlinks.sh
       ${CMAKE_CURRENT_BINARY_DIR}/hhvm ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Creating symlinks for hhvm")
+
+  install(CODE "
+    foreach(link ${HHVM_SYMLINKS})
+      # Correctly handle CMAKE_INSTALL_PREFIX and optional DESTDIR
+      set(dest_link \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/bin/\${link}\")
+      
+      message(STATUS \"Installing symlink: \${dest_link} -> hhvm\")
+      
+      # Use cmake -E for cross-platform compatible symlinking
+      execute_process(
+        COMMAND \${CMAKE_COMMAND} -E create_symlink hhvm \${dest_link}
+      )
+    endforeach()
+  ")
 endif()
 
 HHVM_INSTALL(hhvm bin)
