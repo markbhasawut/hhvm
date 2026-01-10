@@ -44,11 +44,31 @@ function (HHVM_RENDER_CONFIG_SPECIFICATION TARGET)
 
   set(HHVM_RENDER_CONFIG_SPEC_CARGO_HOME ${CMAKE_BINARY_DIR}/hphp/tools/configs/.cargo)
 
+  # Determine the profile flag for the 'cargo run' command
+  # This mirrors the logic in invoke_cargo.sh
+  set(CARGO_PROFILE_FLAG "")
+  if(HACKDEBUG)
+    # Debug mode: No profile flag, but add verbose output
+    list(APPEND CARGO_PROFILE_FLAG "--verbose")
+  else()
+    # Release mode: Add release flag and keep it quiet
+    list(APPEND CARGO_PROFILE_FLAG "--release" "--quiet")
+  endif()
+
+  set(RUSTFLAGS "-C link-arg=-fuse-ld=lld ${RUSTFLAGS}")
+
   add_custom_command(
     OUTPUT ${HHVM_RENDER_CONFIG_SPEC_CONFIG_SOURCES} ${HHVM_RENDER_CONFIG_SPEC_CONFIG_HEADERS}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${HHVM_RENDER_CONFIG_SPEC_OUTPUT_PATH}
-    COMMAND ${CMAKE_COMMAND} -E env RUSTC=${RUSTC_EXE} CARGO_HOME=${HHVM_RENDER_CONFIG_SPEC_CARGO_HOME}
-      ${CARGO_EXE} run --quiet -- ${HHVM_RENDER_CONFIG_SPEC_TYPE} ${HHVM_RENDER_CONFIG_SPEC_OUTPUT_PATH} ${CMAKE_SOURCE_DIR}/hphp/doc/configs.specification
+    COMMAND ${CMAKE_COMMAND} -E env 
+      RUSTC=${RUSTC_EXE} 
+      RUSTFLAGS=${RUSTFLAGS} 
+      CARGO_HOME=${HHVM_RENDER_CONFIG_SPEC_CARGO_HOME}
+      HACKDEBUG=${HACKDEBUG}
+      ${CARGO_EXE} run ${CARGO_PROFILE_FLAG} -- 
+        ${HHVM_RENDER_CONFIG_SPEC_TYPE} 
+        ${HHVM_RENDER_CONFIG_SPEC_OUTPUT_PATH} 
+        ${CMAKE_SOURCE_DIR}/hphp/doc/configs.specification
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/hphp/tools/configs
     DEPENDS ${CMAKE_SOURCE_DIR}/hphp/doc/configs.specification rustc cargo
     VERBATIM
