@@ -2,13 +2,19 @@ include(ExternalProject)
 
 ExternalProject_add(
   bundled_jemalloc
-  URL "https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2"
-  URL_HASH SHA512=0bbb77564d767cef0c6fe1b97b705d368ddb360d55596945aea8c3ba5889fbce10479d85ad492c91d987caacdbbdccc706aa3688e321460069f00c05814fae02
+  URL "https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.2.1.tar.bz2"
+  URL_HASH SHA512=02fffb5b4d45eab0d890b9a41e638be35a7dffe16c8fc736bc6a423dc1d6573018665234253470bec61ca0b0863d5aa339c12596e517e41a0f1994b01c734817
   PREFIX "${JEMALLOC_PREFIX}"
   PATCH_COMMAND
-    patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/mac-sys-nothrow.patch"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apply-quilt-patches.sh"
+    "${CMAKE_CURRENT_SOURCE_DIR}/patches"
   CONFIGURE_COMMAND
     "<SOURCE_DIR>/configure"
+      CC=${CMAKE_C_COMPILER}
+      CXX=${CMAKE_CXX_COMPILER}
+      CFLAGS=${CMAKE_C_FLAGS}
+      CXXFLAGS=${CMAKE_CXX_FLAGS}
+      LDFLAGS=${CMAKE_EXE_LINKER_FLAGS}
       --prefix=<INSTALL_DIR>
       --includedir=<INSTALL_DIR>/include
       --libdir=<INSTALL_DIR>/lib
