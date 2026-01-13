@@ -52,13 +52,17 @@ function get_hhvm_path(OptionMap $opts): string {
 
   $buck = __DIR__.'/../../buck-out/gen/hphp/hhvm/hhvm/hhvm';
   $buck2 = __DIR__.'/../../../buck-out/v2/gen/fbcode/hphp/hhvm/out/hhvm';
+  $hphpi = '/usr/local/hphpi/bin/hhvm';
+  $cmake_bin = __DIR__.'/../../_build/hhvm/hhvm';
 
-  $bins = vec[$buck, $buck2] |> HH\Lib\Vec\filter($$, $bin ==> file_exists($bin));
+  $bins = vec[$buck, $buck2, $hphpi, $cmake_bin] |> HH\Lib\Vec\filter($$, $bin ==> file_exists($bin));
 
   if (HH\Lib\C\is_empty($bins)) {
     echo "Couldn't find an HHVM binary in the following locations:\n";
     echo " - " . $buck . "\n";
     echo " - " . $buck2 . "\n";
+    echo " - " . $hphpi . "\n";
+    echo " - " . $cmake_bin . "\n";
     error("Build HHVM first.");
   } else if (HH\Lib\C\count($bins) > 1) {
     echo "Multiple HHVM binaries found:\n";
