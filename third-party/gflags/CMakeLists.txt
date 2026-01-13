@@ -20,9 +20,9 @@ include(HPHPFunctions)
 SET_HHVM_THIRD_PARTY_SOURCE_ARGS(
   GFLAGS_SOURCE_ARGS
   SOURCE_URL
-  "https://github.com/gflags/gflags/archive/refs/tags/v2.2.2.tar.gz"
+  "https://github.com/gflags/gflags/archive/refs/tags/v2.3.0.tar.gz"
   SOURCE_HASH
-  "SHA256=34af2f15cf7367513b352bdcd2493ab14ce43692d2dcd9dfc499492966c64dcf"
+  "SHA512=d1e3971c2db6e0cba16fc6438213866c3e031bed73b3332ae3ca3a6e6f14fd17c8881ad8fa9716a4c468171c8d7cbd26d4049fc4af8ed4888c3a0ad913ea24da"
 )
 
 set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/gflags-prefix")
