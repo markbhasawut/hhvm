@@ -67,9 +67,9 @@ if (CURL_STATIC)
 endif()
 
 # LibXML2 checks
-find_package(LibXml2 REQUIRED)
-include_directories(${LIBXML2_INCLUDE_DIR})
-add_definitions(${LIBXML2_DEFINITIONS})
+# find_package(LibXml2 REQUIRED)
+# include_directories(${LIBXML2_INCLUDE_DIR})
+# add_definitions(${LIBXML2_DEFINITIONS})
 
 # libsqlite3
 find_package(LibSQLite REQUIRED)
@@ -438,6 +438,8 @@ macro(hphp_link target)
 
   target_link_libraries(${target} ${VISIBILITY} afdt)
   target_link_libraries(${target} ${VISIBILITY} mbfl)
+
+  target_link_libraries(${target} ${VISIBILITY} libxml2)
 
   if (LINUX)
     target_link_libraries(${target} ${VISIBILITY} ${LIBUNWIND_LIBRARIES})

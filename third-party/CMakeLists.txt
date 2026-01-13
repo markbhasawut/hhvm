@@ -60,6 +60,9 @@ add_subdirectory(glog)
 
 add_subdirectory(folly)
 
+# libxml2
+add_subdirectory(libxml2)
+
 # Fatal is a header-only library, so there's nothing to build.
 list(APPEND EXTRA_INCLUDE_PATHS "${TP_DIR}/fatal")
 
