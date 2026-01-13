@@ -5,9 +5,9 @@ if(CLANG_FORCE_LIBCPP)
   SET_HHVM_THIRD_PARTY_SOURCE_ARGS(
     GLOG_SOURCE_ARGS
     SOURCE_URL
-    "https://github.com/google/glog/archive/refs/tags/v0.6.0.zip"
+    "https://github.com/google/glog/archive/refs/tags/v0.7.1.tar.gz"
     SOURCE_HASH
-    "SHA512=e23e2dba2e962645bd3880f2a4436b913b18dfab5068b684f8b3cc286bd4def5a72a5faf99fe17e3a11b2a987ffe3e81707df46214b7a64cf33ca38c5c3fd85b"
+    "SHA512=2dabac87d44e4fe58beceb31b22be732b47df84c22f1af8c0e7d0f262de939889de1f16025c1256539f2833ef3393bc92034e983aa2886752bb8705801a68630"
   )
 
   set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/glog-prefix")
