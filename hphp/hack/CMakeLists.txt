@@ -394,3 +394,15 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hh_fanout
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hackc
   DESTINATION bin
   COMPONENT dev)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hh_single_ide_format
+  DESTINATION bin
+  COMPONENT dev)
+    
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/hh_single_type_check
+  DESTINATION bin
+  COMPONENT dev)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/generate_full_fidelity
+  DESTINATION bin
+  COMPONENT dev)
