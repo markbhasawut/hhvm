@@ -33,6 +33,8 @@ BUILD_DEPS="${PKGBASE}-build-deps_${FULL_VERSION}_all.deb"
 OUT=${OUT:-/var/out}
 mkdir -p "$OUT"
 
+CLANG_VERSION=${CLANG_VERSION:-21}
+
 # Environment set up
 apt update -y && apt install -y devscripts equivs git wget lsb-release software-properties-common gpg clang clang-${CLANG_VERSION} libc++-${CLANG_VERSION}-dev libc++abi-${CLANG_VERSION}-dev
 
