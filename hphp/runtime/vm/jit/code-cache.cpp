@@ -239,23 +239,23 @@ CodeCache::CodeCache() {
       usedBase, lowArenaStart
     );
 
-    if (usedBase + m_totalSize > lowArenaStart) {
+    if (usedBase + totalSize > lowArenaStart) {
       cutTCSizeTo(lowArenaStart - usedBase - thread_local_size);
       new (this) CodeCache;
       return;
     }
     always_assert_flog(
-      usedBase + m_totalSize <= lowArenaStart,
+      usedBase + totalSize <= lowArenaStart,
       "computed allocationSize ({}) is too large to fit within "
       "lowArenaStart ({}), usedBase = {}\n",
-      m_totalSize, lowArenaStart, usedBase
+      totalSize, lowArenaStart, usedBase
     );
   }
 #endif
   // Use MAP_FIXED_NOREPLACE instead of MAP_FIXED so we actually get
   // an error if we overlap with an existing mapping.
   auto const allocBase =
-    (uintptr_t)mmap(reinterpret_cast<void*>(usedBase), m_totalSize,
+    (uintptr_t)mmap(reinterpret_cast<void*>(usedBase), totalSize,
                     PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
   if (allocBase != usedBase) {
@@ -289,11 +289,9 @@ CodeCache::CodeCache() {
   CodeAddress base = reinterpret_cast<CodeAddress>(usedBase);
   m_base = base;
 
-  numa_interleave(base, m_totalSize);
+  numa_interleave(base, totalSize);
 
-  TRACE(1, "init a @%p\n", m_base);
-
-  m_main.init(base, kASize, "main");
+  m_all.init(m_base, totalSize, "all");
   uint32_t hugeMainMBs = Cfg::CodeCache::TCNumHugeHotMB + Cfg::CodeCache::TCNumHugeMainMB;
   // Don't map more pages to huge pages than kASize.  And if we're not in
   // jumpstart consumer mode, then we'll need to generate profiling code, which
