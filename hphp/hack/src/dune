@@ -82,6 +82,7 @@
  (libraries
   default_injector_config
   file_content
+  folly_stubs
   hh_single_common
   hhi
   search
@@ -236,29 +237,30 @@
 (executable
  (name generate_full_fidelity)
  (modules generate_full_fidelity generate_full_fidelity_data)
+ (modes exe byte_complete)
  (link_flags
   (:standard
    (:include dune_config/ld-opts.sexp)))
  (libraries core_kernel str parser_schema collections utils_core))
 
- (executable
-  (name hh_single_fanout)
-  (modules hh_single_fanout)
-  (modes exe byte_complete)
-  (link_flags
-   (:standard
-    (:include dune_config/ld-opts.sexp)))
- (libraries
-    decl_redecl_service
-    default_injector_config
-    dep_hash_to_symbol
-    direct_decl_service
-    naming_table
-    server_incremental
-    typing_check_job
-    typing_deps)
-  (preprocess
-    (pps ppx_deriving.std)))
+(executable
+ (name hh_single_fanout)
+ (modules hh_single_fanout)
+ (modes exe byte_complete)
+(link_flags
+ (:standard
+  (:include dune_config/ld-opts.sexp)))
+(libraries
+  decl_redecl_service
+  default_injector_config
+  dep_hash_to_symbol
+  direct_decl_service
+  naming_table
+  server_incremental
+  typing_check_job
+  typing_deps)
+(preprocess
+ (pps ppx_deriving.std)))
 
 (alias
  (name exe)
@@ -267,6 +269,7 @@
   hh_client.exe
   hh_parse.exe
   hh_server.exe
+  hh_single_complete.exe
   hh_single_decl.exe
   hh_single_type_check.exe
   hh_single_complete.exe
@@ -293,6 +296,9 @@
   hh_client.bc.exe
   hh_parse.bc.exe
   hh_server.bc.exe
+  hh_single_complete.bc.exe
+  hh_single_decl.bc.exe
+  hh_single_ide_format.bc.exe
   hh_single_type_check.bc.exe
   hh_single_complete.bc.exe
   hh_single_fanout.bc.exe
