@@ -129,7 +129,6 @@ bool getFrameRegs(VMFrame frame, VMRegs* outVMRegs) {
     tca = *reinterpret_cast<TCA*>(ripAddr);
     extraSpOffset = fixup->spOffset();
     fixup = s_fixups.find(tc::addrToOffset(tca));
-    if (!fixup) return false;
     assertx(fixup && "Missing fixup for indirect fixup");
     assertx(!fixup->isIndirect() && "Invalid doubly indirect fixup");
   }
@@ -203,10 +202,6 @@ bool fixupWork(ActRec* nextRbp, bool soft) {
       auto const frame = VMFrame{nextRbp, TCA(rbp->m_savedRip), cfa};
       auto const res = processFixupForVMFrame(frame);
       if (res || LIKELY(soft)) return res;
-      // If we are here, we are in a JIT frame but found no fixup.
-      // Instead of aborting the whole process, we return false.
-      // This allows the unwinder to gracefully skip this frame.
-      return false;
       always_assert(false && "Fixup expected for leafmost VM frame");
     }
   }
