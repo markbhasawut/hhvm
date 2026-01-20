@@ -21,7 +21,6 @@ set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/libxml2-prefix")
 ExternalProject_add(
   bundled_libxml2
   ${LIBXML2_SOURCE_ARGS}
-  BUILD_ALWAYS OFF
   CONFIGURE_COMMAND
     /bin/sh -c "
       <SOURCE_DIR>/autogen.sh \
