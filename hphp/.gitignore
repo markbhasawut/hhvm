@@ -44,3 +44,6 @@ TAGS
 # gdb
 .gdb_history
 tools/gdb/hhvm-gdb
+
+# rust build artifacts
+tools/configs/target/*
