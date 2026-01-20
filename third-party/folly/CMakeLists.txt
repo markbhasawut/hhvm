@@ -31,10 +31,6 @@ ExternalProject_add(
   bundled_folly
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/
   BUILD_ALWAYS OFF
-  PATCH_COMMAND
-    "${CMAKE_CURRENT_SOURCE_DIR}/../apply-quilt-patches.sh"
-    "${CMAKE_CURRENT_SOURCE_DIR}/patches"
-  LIST_SEPARATOR "!!"
   CMAKE_ARGS
     -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
     "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} ${FOLLY_CXXFLAGS}"
@@ -46,9 +42,8 @@ ExternalProject_add(
     -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
     -DCMAKE_INSTALL_INCLUDEDIR=include
     -DCMAKE_INSTALL_LIBDIR=lib
+    -DBUILD_TESTS=OFF
     # Options
-    -DWITHOUT_LIBLZMA=ON
-    -DWITHOUT_LIBSNAPPY=ON
     -DFOLLY_USE_SYMBOLIZER=ON
     # Dependencies
     -DOPENSSL_INCLUDE_DIR=${OPENSSL_INCLUDE_DIR}
@@ -70,15 +65,6 @@ ExternalProject_add(
 
     -DZSTD_INCLUDE_DIR=${ZSTD_INCLUDE_DIR}
     -DZSTD_LIBRARY_RELEASE=${ZSTD_LIBRARY}
-  BUILD_COMMAND
-    $(MAKE) folly
-  INSTALL_COMMAND
-# Prefered, but needs CMake 3.15 or above. Revist when Ubuntu 18.04 support is removed
-#    ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE} --component dev &&
-#    ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE} --component lib
-# Legacy way:
-    ${CMAKE_COMMAND} -DCOMPONENT=dev -P cmake_install.cmake --config ${CMAKE_BUILD_TYPE} &&
-    ${CMAKE_COMMAND} -DCOMPONENT=lib -P cmake_install.cmake --config ${CMAKE_BUILD_TYPE}
 )
 ExternalProject_Get_Property(bundled_folly INSTALL_DIR)
 set(
@@ -94,22 +80,15 @@ set(
   glog
 )
 add_dependencies(bundled_folly ${FOLLY_DEPS})
-add_library(folly_deps INTERFACE)
-target_link_libraries(folly_deps INTERFACE ${FOLLY_DEPS})
-
-
 add_library(folly INTERFACE)
 add_dependencies(folly bundled_folly)
-target_include_directories(
+target_include_directories(folly INTERFACE "${INSTALL_DIR}/include")
+
+target_link_libraries(
   folly
   INTERFACE
-  "${INSTALL_DIR}/include"
-  "${CMAKE_CURRENT_LIST_DIR}/include"
-)
-target_link_libraries(folly
-  INTERFACE
   "${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}folly${CMAKE_STATIC_LIBRARY_SUFFIX}"
-  folly_deps
+  ${FOLLY_DEPS}
 )
 # Use target_link_directories instead once our minimum is CMake 3.13
 set(FOLLY_INSTALL_DIR "${INSTALL_DIR}" PARENT_SCOPE)

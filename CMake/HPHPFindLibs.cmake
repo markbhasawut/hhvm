@@ -283,6 +283,10 @@ if (LINUX)
   find_package(Bpf REQUIRED)
 endif()
 
+# Needed by Folly
+find_package(LibLZMA  REQUIRED)
+find_package(Snappy REQUIRED)
+
 # This is required by Homebrew's libc. See
 # https://github.com/facebook/hhvm/pull/5728#issuecomment-124290712
 # for more info.
