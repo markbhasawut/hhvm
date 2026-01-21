@@ -393,6 +393,8 @@ macro(hphp_link target)
   target_link_libraries(${target} ${VISIBILITY} ${ZLIB_LIBRARIES})
 
   target_link_libraries(${target} ${VISIBILITY} ${LIBXML2_LIBRARIES})
+  target_link_libraries(${target} ${VISIBILITY} ${LIBLZMA_LIBRARIES})
+  target_link_libraries(${target} ${VISIBILITY} ${SNAPPY_LIBS})
 
   target_link_libraries(${target} ${VISIBILITY} ${LBER_LIBRARIES})
 
