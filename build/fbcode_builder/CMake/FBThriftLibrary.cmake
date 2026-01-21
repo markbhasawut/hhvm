@@ -15,7 +15,8 @@ include(FBThriftCppLibrary)
 #     foo foo.thrift
 #     LANGUAGES cpp py
 #     SERVICES Foo
-#     DEPENDS bar)
+#     DEPENDS bar
+#     EXTRA_VALIDATION baz)
 #
 # will be expanded into two separate calls:
 #
@@ -25,7 +26,7 @@ include(FBThriftCppLibrary)
 function(add_fbthrift_library LIB_NAME THRIFT_FILE)
   # Parse the arguments
   set(one_value_args PY_NAMESPACE INCLUDE_DIR THRIFT_INCLUDE_DIR)
-  set(multi_value_args SERVICES DEPENDS LANGUAGES CPP_OPTIONS PY_OPTIONS)
+  set(multi_value_args SERVICES DEPENDS LANGUAGES CPP_OPTIONS PY_OPTIONS EXTRA_VALIDATION)
   fb_cmake_parse_args(
     ARG "" "${one_value_args}" "${multi_value_args}" "${ARGN}"
   )
@@ -35,6 +36,13 @@ function(add_fbthrift_library LIB_NAME THRIFT_FILE)
   endif()
   if(NOT DEFINED ARG_THRIFT_INCLUDE_DIR)
     set(ARG_THRIFT_INCLUDE_DIR "${ARG_INCLUDE_DIR}/thrift-files")
+  endif()
+
+  set(EXTRA_VALIDATION "")
+  if(DEFINED ARG_EXTRA_VALIDATION)
+    foreach(option IN LISTS ARG_EXTRA_VALIDATION)
+      list(APPEND EXTRA_VALIDATION "--extra-validation" "${option}")
+    endforeach()
   endif()
 
   # CMake 3.12+ adds list(TRANSFORM) which would be nice to use here, but for
@@ -51,6 +59,7 @@ function(add_fbthrift_library LIB_NAME THRIFT_FILE)
       add_fbthrift_cpp_library(
         "${LIB_NAME}_cpp" "${THRIFT_FILE}"
         SERVICES ${ARG_SERVICES}
+        EXTRA_VALIDATION "${EXTRA_VALIDATION}"
         DEPENDS ${CPP_DEPENDS}
         OPTIONS ${ARG_CPP_OPTIONS}
         INCLUDE_DIR "${ARG_INCLUDE_DIR}"
@@ -64,6 +73,7 @@ function(add_fbthrift_library LIB_NAME THRIFT_FILE)
         "${LIB_NAME}_py" "${THRIFT_FILE}"
         SERVICES ${ARG_SERVICES}
         ${namespace_args}
+        EXTRA_VALIDATION "${EXTRA_VALIDATION}"
         DEPENDS ${PY_DEPENDS}
         OPTIONS ${ARG_PY_OPTIONS}
         THRIFT_INCLUDE_DIR "${ARG_THRIFT_INCLUDE_DIR}"

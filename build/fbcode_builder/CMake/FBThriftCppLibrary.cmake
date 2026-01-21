@@ -11,6 +11,8 @@ include(FBCMakeParseArgs)
 #   A list of other thrift C++ libraries that this library depends on.
 # - OPTIONS <opt1> [<opt2> ...]
 #   A list of options to pass to the thrift compiler.
+# - EXTRA_VALIDATION [<opt1> [<opt2> ...]
+#   A list of opt-in validators to run.
 # - INCLUDE_DIR <path>
 #   The sub-directory where generated headers will be installed.
 #   Defaults to "include" if not specified.  The caller must still call
@@ -23,7 +25,7 @@ include(FBCMakeParseArgs)
 function(add_fbthrift_cpp_library LIB_NAME THRIFT_FILE)
   # Parse the arguments
   set(one_value_args INCLUDE_DIR THRIFT_INCLUDE_DIR)
-  set(multi_value_args SERVICES DEPENDS OPTIONS)
+  set(multi_value_args SERVICES DEPENDS OPTIONS EXTRA_VALIDATION)
   fb_cmake_parse_args(
     ARG "" "${one_value_args}" "${multi_value_args}" "${ARGN}"
   )
@@ -32,6 +34,13 @@ function(add_fbthrift_cpp_library LIB_NAME THRIFT_FILE)
   endif()
   if(NOT DEFINED ARG_THRIFT_INCLUDE_DIR)
     set(ARG_THRIFT_INCLUDE_DIR "${ARG_INCLUDE_DIR}/thrift-files")
+  endif()
+
+  set(EXTRA_VALIDATION "")
+  if(DEFINED ARG_EXTRA_VALIDATION)
+    foreach(option IN LISTS ARG_EXTRA_VALIDATION)
+      list(APPEND EXTRA_VALIDATION "--extra-validation" "${option}")
+    endforeach()
   endif()
 
   get_filename_component(base ${THRIFT_FILE} NAME_WE)
@@ -116,6 +125,7 @@ function(add_fbthrift_cpp_library LIB_NAME THRIFT_FILE)
     COMMAND
       "${FBTHRIFT_COMPILER}"
       --legacy-strict
+      "${EXTRA_VALIDATION}"
       --gen "mstch_cpp2:${GEN_ARG_STR}"
       "${thrift_include_options}"
       -I "${FBTHRIFT_INCLUDE_DIR}"

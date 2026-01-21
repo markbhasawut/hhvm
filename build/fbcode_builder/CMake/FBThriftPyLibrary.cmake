@@ -16,6 +16,13 @@ function(add_fbthrift_py_library LIB_NAME THRIFT_FILE)
     set(ARG_THRIFT_INCLUDE_DIR "include/thrift-files")
   endif()
 
+  set(EXTRA_VALIDATION "")
+  if(DEFINED ARG_EXTRA_VALIDATION)
+    foreach(option IN LISTS ARG_EXTRA_VALIDATION)
+      list(APPEND EXTRA_VALIDATION "--extra-validation" "${option}")
+    endforeach()
+  endif()
+
   get_filename_component(base ${THRIFT_FILE} NAME_WE)
   set(output_dir "${CMAKE_CURRENT_BINARY_DIR}/${THRIFT_FILE}-py")
 
@@ -85,6 +92,7 @@ function(add_fbthrift_py_library LIB_NAME THRIFT_FILE)
     COMMAND
       "${FBTHRIFT_COMPILER}"
       --legacy-strict
+      "${EXTRA_VALIDATION}"
       --gen "py:${GEN_ARG_STR}"
       "${thrift_include_options}"
       -o "${output_dir}"
