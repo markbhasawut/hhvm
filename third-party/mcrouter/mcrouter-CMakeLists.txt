@@ -105,17 +105,20 @@ find_path(JEMALLOC_INCLUDE_DIR NAMES jemalloc/jemalloc.h REQUIRED)
 include(FBThriftCppLibrary)
 set(THRIFT_OPTIONS stack_arguments sync_methods_return_try
                    deprecated_terse_writes)
+set(THRIFT_EXTRA_VALIDATION deprecated_cpp_methods=none)
 
-add_fbthrift_cpp_library(mcrouter_carbon_result_thrift mcrouter/lib/carbon/carbon_result.thrift OPTIONS ${THRIFT_OPTIONS})
-add_fbthrift_cpp_library(mcrouter_carbon_thrift mcrouter/lib/carbon/carbon.thrift OPTIONS ${THRIFT_OPTIONS})
+add_fbthrift_cpp_library(mcrouter_carbon_result_thrift mcrouter/lib/carbon/carbon_result.thrift OPTIONS ${THRIFT_OPTIONS} EXTRA_VALIDATION ${THRIFT_EXTRA_VALIDATION})
+add_fbthrift_cpp_library(mcrouter_carbon_thrift mcrouter/lib/carbon/carbon.thrift OPTIONS ${THRIFT_OPTIONS} EXTRA_VALIDATION ${THRIFT_EXTRA_VALIDATION})
 add_fbthrift_cpp_library(mcrouter_common_thrift mcrouter/lib/network/gen/Common.thrift
     OPTIONS ${THRIFT_OPTIONS}
+    EXTRA_VALIDATION ${THRIFT_EXTRA_VALIDATION}
     DEPENDS
         mcrouter_carbon_thrift
         mcrouter_carbon_result_thrift
 )
 add_fbthrift_cpp_library(mcrouter_memcache_thrift mcrouter/lib/network/gen/Memcache.thrift
     OPTIONS ${THRIFT_OPTIONS}
+    EXTRA_VALIDATION ${THRIFT_EXTRA_VALIDATION}
     DEPENDS
         mcrouter_carbon_thrift
         mcrouter_carbon_result_thrift
@@ -123,6 +126,7 @@ add_fbthrift_cpp_library(mcrouter_memcache_thrift mcrouter/lib/network/gen/Memca
 )
 add_fbthrift_cpp_library(mcrouter_memcache_service_thrift mcrouter/lib/network/gen/MemcacheService.thrift
     OPTIONS ${THRIFT_OPTIONS}
+    EXTRA_VALIDATION ${THRIFT_EXTRA_VALIDATION}
     DEPENDS
         mcrouter_common_thrift
         mcrouter_memcache_thrift
