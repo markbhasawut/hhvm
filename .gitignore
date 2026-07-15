@@ -7,9 +7,12 @@
 .DS_Store
 hphp.log
 /_build
+hphp/_build/
 hphp/hack/_build/
 hphp/hack/cargo_home/
 /deps
+**/target/
+**/.lake/
 
 /hphp/test/test
 /hphp/test/test_fast.inc
