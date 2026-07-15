@@ -1,74 +1,101 @@
+FILTER_SANITIZE_ENCODED
+  INSERT FILTER_SANITIZE_ENCODED
+  constant
+FILTER_SANITIZE_FULL_SPECIAL_CHARS
+  INSERT FILTER_SANITIZE_FULL_SPECIAL_CHARS
+  constant
+FILTER_SANITIZE_MAGIC_QUOTES
+  INSERT FILTER_SANITIZE_MAGIC_QUOTES
+  constant
+FILTER_SANITIZE_NUMBER_FLOAT
+  INSERT FILTER_SANITIZE_NUMBER_FLOAT
+  constant
+FILTER_SANITIZE_NUMBER_INT
+  INSERT FILTER_SANITIZE_NUMBER_INT
+  constant
+FILTER_SANITIZE_SPECIAL_CHARS
+  INSERT FILTER_SANITIZE_SPECIAL_CHARS
+  constant
+FILTER_SANITIZE_STRING
+  INSERT FILTER_SANITIZE_STRING
+  constant
+FILTER_SANITIZE_STRIPPED
+  INSERT FILTER_SANITIZE_STRIPPED
+  constant
+FILTER_SANITIZE_URL
+  INSERT FILTER_SANITIZE_URL
+  constant
+FILTER_UNSAFE_RAW
+  INSERT FILTER_UNSAFE_RAW
+  constant
+FILTER_VALIDATE_BOOLEAN
+  INSERT FILTER_VALIDATE_BOOLEAN
+  constant
+FILTER_VALIDATE_EMAIL
+  INSERT FILTER_VALIDATE_EMAIL
+  constant
+FILTER_VALIDATE_FLOAT
+  INSERT FILTER_VALIDATE_FLOAT
+  constant
+FILTER_VALIDATE_INT
+  INSERT FILTER_VALIDATE_INT
+  constant
+FILTER_VALIDATE_IP
+  INSERT FILTER_VALIDATE_IP
+  constant
+FILTER_VALIDATE_MAC
+  INSERT FILTER_VALIDATE_MAC
+  constant
+FILTER_VALIDATE_REGEXP
+  INSERT FILTER_VALIDATE_REGEXP
+  constant
+FILTER_VALIDATE_URL
+  INSERT FILTER_VALIDATE_URL
+  constant
+FORCE_DEFLATE
+  INSERT FORCE_DEFLATE
+  constant
+FORCE_GZIP
+  INSERT FORCE_GZIP
+  constant
+FilesystemIterator
+  INSERT FilesystemIterator
+  class
+FilterIterator
+  INSERT FilterIterator
+  class
+Foo
+  INSERT Foo
+  class
+FunctionCredential
+  INSERT FunctionCredential
+  class
+false
+  INSERT false
+  constant
+fb_call_user_func_async
+  INSERT fb_call_user_func_async
+  function
+fb_compact_serialize
+  INSERT fb_compact_serialize
+  function
+fb_compact_unserialize
+  INSERT fb_compact_unserialize
+  function
+fb_disable_code_coverage
+  INSERT fb_disable_code_coverage
+  function
 fb_enable_code_coverage
   INSERT fb_enable_code_coverage
-  function
-fb_fbid_in_oid_range
-  INSERT fb_fbid_in_oid_range
-  function
-fb_fbid_in_rid_range
-  INSERT fb_fbid_in_rid_range
-  function
-fb_fbid_in_uid_range
-  INSERT fb_fbid_in_uid_range
-  function
-fb_fbid_is_valid
-  INSERT fb_fbid_is_valid
-  function
-fb_folly_varint_decode
-  INSERT fb_folly_varint_decode
-  function
-fb_folly_varint_decode_group
-  INSERT fb_folly_varint_decode_group
-  function
-fb_folly_varint_encode
-  INSERT fb_folly_varint_encode
-  function
-fb_folly_varint_encode_group
-  INSERT fb_folly_varint_encode_group
   function
 fb_gen_user_func
   INSERT fb_gen_user_func
   function
-fb_get_allotment_shape_name
-  INSERT fb_get_allotment_shape_name
-  function
-fb_get_cert_token
-  INSERT fb_get_cert_token
-  function
-fb_get_client_identities
-  INSERT fb_get_client_identities
-  function
 fb_get_code_coverage
   INSERT fb_get_code_coverage
   function
-fb_get_enum_names
-  INSERT fb_get_enum_names
-  function
-fb_get_enum_values
-  INSERT fb_get_enum_values
-  function
-fb_get_hash_and_shard
-  INSERT fb_get_hash_and_shard
-  function
-fb_get_hashout_config
-  INSERT fb_get_hashout_config
-  function
 fb_get_last_flush_size
   INSERT fb_get_last_flush_size
-  function
-fb_get_lsst
-  INSERT fb_get_lsst
-  function
-fb_get_sandbox_cat
-  INSERT fb_get_sandbox_cat
-  function
-fb_get_sandbox_owners
-  INSERT fb_get_sandbox_owners
-  function
-fb_id_to_db
-  INSERT fb_id_to_db
-  function
-fb_init_scribe_extension
-  INSERT fb_init_scribe_extension
   function
 fb_intercept2
   INSERT fb_intercept2
@@ -79,29 +106,8 @@ fb_intercept2_named_args
 fb_output_compression
   INSERT fb_output_compression
   function
-fb_proxy_cert_token
-  INSERT fb_proxy_cert_token
-  function
 fb_rename_function
   INSERT fb_rename_function
-  function
-fb_scribe_fetch_graphapi_category_meta
-  INSERT fb_scribe_fetch_graphapi_category_meta
-  function
-fb_scribe_gen_write_message
-  INSERT fb_scribe_gen_write_message
-  function
-fb_scribe_gen_write_structured_message
-  INSERT fb_scribe_gen_write_structured_message
-  function
-fb_scribe_is_initialized
-  INSERT fb_scribe_is_initialized
-  function
-fb_scribe_offer
-  INSERT fb_scribe_offer
-  function
-fb_scribe_offer_message
-  INSERT fb_scribe_offer_message
   function
 fb_serialize
   INSERT fb_serialize
@@ -123,9 +129,6 @@ fb_utf8_substr
   function
 fb_utf8ize
   INSERT fb_utf8ize
-  function
-fb_verify_cert_token
-  INSERT fb_verify_cert_token
   function
 fclose
   INSERT fclose
@@ -225,9 +228,6 @@ finfo_open
   function
 finfo_set_flags
   INSERT finfo_set_flags
-  function
-flatbuffer_encode
-  INSERT flatbuffer_encode
   function
 floatval
   INSERT floatval

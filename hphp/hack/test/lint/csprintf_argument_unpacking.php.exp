@@ -1,2 +1,1 @@
-File "csprintf_argument_unpacking.php", line 3, characters 10-13:
-test is the only function declared in csprintf_argument_unpacking.php, so that file should be named test.php instead. (Lint[5564])
+No lint errors

@@ -1,2 +1,1 @@
-File "linter_classname_filename_mismatch.php", line 3, characters 7-10:
-Test is the only class declared in linter_classname_filename_mismatch.php, so that file should be named Test.php instead. (Lint[5564])
+No lint errors

@@ -70,12 +70,8 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse :
-              t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              t) =
+    let rec traverse :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun t ~ctx ~top_down ~bottom_up ->
       match t with
       | Plus (plus_elem_0, plus_elem_1) ->
@@ -93,8 +89,8 @@ end = struct
             transform cond_elem_2 ~ctx ~top_down ~bottom_up )
       | t -> t
 
-    and (transform :
-          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t) =
+    and transform :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -203,13 +199,14 @@ end = struct
     end
 
     let rec traverse :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
-      fun (type a) (t : a t) ~ctx ~top_down ~bottom_up : a t ->
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
+     fun (type a) ->
+      fun (t : a t) ~ctx ~top_down ~bottom_up : a t ->
        match t with
        | Plus (plus_elem_0, plus_elem_1) ->
          Plus
@@ -227,13 +224,14 @@ end = struct
        | t -> t
 
     and transform :
-          'a.
-          'a t ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a t =
-      fun (type a) (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
+     fun (type a) ->
+      fun (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
        match top_down.Pass.on_ty_t with
        | Some td ->
          (match td elem ~ctx with
@@ -382,12 +380,12 @@ end = struct
     end
 
     let rec transform_ty_bind :
-              'a.
-              'a bind ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a bind =
+        'a.
+        'a bind ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a bind =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_bind with
       | Some td ->
@@ -415,12 +413,12 @@ end = struct
     let _ = transform_ty_bind
 
     let rec traverse_ty_term :
-              'a.
-              'a term ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a term =
+        'a.
+        'a term ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a term =
      fun term ~ctx ~top_down ~bottom_up ->
       match term with
       | App (app_elem_0, app_elem_1) ->
@@ -432,12 +430,12 @@ end = struct
       | term -> term
 
     and transform_ty_term :
-          'a.
-          'a term ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a term =
+        'a.
+        'a term ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a term =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_term with
       | Some td ->
@@ -578,24 +576,24 @@ end = struct
     end
 
     let rec traverse_ty_two :
-              'a.
-              'a two ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a two =
+        'a.
+        'a two ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a two =
      fun two ~ctx ~top_down ~bottom_up ->
       match two with
       | MaybeOne maybeone_elem ->
         MaybeOne (transform_ty_one maybeone_elem ~ctx ~top_down ~bottom_up)
 
     and transform_ty_two :
-          'a.
-          'a two ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a two =
+        'a.
+        'a two ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a two =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_two with
       | Some td ->
@@ -623,12 +621,12 @@ end = struct
             transform_ty_two elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_one :
-          'a.
-          'a one ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a one =
+        'a.
+        'a one ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a one =
      fun one ~ctx ~top_down ~bottom_up ->
       match one with
       | Two two_elem ->
@@ -636,12 +634,12 @@ end = struct
       | one -> one
 
     and transform_ty_one :
-          'a.
-          'a one ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a one =
+        'a.
+        'a one ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a one =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_one with
       | Some td ->
@@ -786,24 +784,24 @@ end = struct
     end
 
     let rec traverse_ty_two :
-              'a.
-              'a two ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a two =
+        'a.
+        'a two ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a two =
      fun two ~ctx ~top_down ~bottom_up ->
       match two with
       | MaybeOne maybeone_elem ->
         MaybeOne (transform_ty_one maybeone_elem ~ctx ~top_down ~bottom_up)
 
     and transform_ty_two :
-          'a.
-          'a two ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a two =
+        'a.
+        'a two ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a two =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_two with
       | Some td ->
@@ -831,26 +829,28 @@ end = struct
             transform_ty_two elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_one :
-          'a.
-          'a one ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a one =
-      fun (type a) (one : a one) ~ctx ~top_down ~bottom_up : a one ->
+        'a.
+        'a one ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a one =
+     fun (type a) ->
+      fun (one : a one) ~ctx ~top_down ~bottom_up : a one ->
        match one with
        | Two two_elem ->
          Two (transform_ty_two two_elem ~ctx ~top_down ~bottom_up)
        | one -> one
 
     and transform_ty_one :
-          'a.
-          'a one ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a one =
-      fun (type a) (elem : a one) ~ctx ~top_down ~bottom_up : a one ->
+        'a.
+        'a one ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a one =
+     fun (type a) ->
+      fun (elem : a one) ~ctx ~top_down ~bottom_up : a one ->
        match top_down.Pass.on_ty_one with
        | Some td ->
          (match td elem ~ctx with
@@ -957,24 +957,24 @@ end = struct
     end
 
     let rec traverse :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun t ~ctx ~top_down ~bottom_up ->
       match t with
       | Node node_elem -> Node (transform node_elem ~ctx ~top_down ~bottom_up)
       | t -> t
 
     and transform :
-          'a.
-          'a t ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -1077,12 +1077,8 @@ module Composed = struct
         let _ = combine
       end
 
-      let rec (transform :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -1179,12 +1175,8 @@ module Composed = struct
         let _ = combine
       end
 
-      let rec (transform :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -1279,12 +1271,8 @@ module Composed = struct
         let _ = combine
       end
 
-      let rec (transform :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -1407,12 +1395,8 @@ module Composed = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | Bin (bin_elem_0, bin_elem_1, bin_elem_2) ->
@@ -1482,9 +1466,8 @@ module Composed = struct
               transform cond_elem_2 ~ctx ~top_down ~bottom_up )
         | t -> t
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -1618,13 +1601,14 @@ module Composed = struct
       end
 
       let rec traverse :
-                'a.
-                'a t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                'a t =
-        fun (type a) (t : a t) ~ctx ~top_down ~bottom_up : a t ->
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
+       fun (type a) ->
+        fun (t : a t) ~ctx ~top_down ~bottom_up : a t ->
          match t with
          | Bin (bin_elem_0, bin_elem_1, bin_elem_2) ->
            Bin
@@ -1694,13 +1678,14 @@ module Composed = struct
          | t -> t
 
       and transform :
-            'a.
-            'a t ->
-            ctx:'ctx ->
-            top_down:'ctx Pass.t ->
-            bottom_up:'ctx Pass.t ->
-            'a t =
-        fun (type a) (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
+       fun (type a) ->
+        fun (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
          match top_down.Pass.on_ty_t with
          | Some td ->
            (match td elem ~ctx with
@@ -1816,12 +1801,12 @@ end = struct
     end
 
     let rec traverse :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun ({ ref; opt; res; list; array; lazy_; nested; _ } as t)
          ~ctx
          ~top_down
@@ -1894,12 +1879,12 @@ end = struct
       }
 
     and transform :
-          'a.
-          'a t ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -2084,21 +2069,21 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse_ty_alias :
-              alias ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              alias) =
+    let rec traverse_ty_alias :
+        alias ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias =
      fun (alias_0, alias_1, alias_2) ~ctx ~top_down ~bottom_up ->
       (transform_ty_record alias_0 ~ctx ~top_down ~bottom_up, alias_1, alias_2)
 
-    and (transform_ty_alias :
-          alias ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          alias) =
+    and transform_ty_alias :
+        alias ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_alias with
       | Some td ->
@@ -2125,24 +2110,24 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ty_alias elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_record :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and traverse_ty_record :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun ({ normal; _ } as record) ~ctx ~top_down ~bottom_up ->
       {
         record with
         normal = transform_ty_alias normal ~ctx ~top_down ~bottom_up;
       }
 
-    and (transform_ty_record :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and transform_ty_record :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_record with
       | Some td ->
@@ -2169,12 +2154,12 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ty_record elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and traverse_ty_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun variant ~ctx ~top_down ~bottom_up ->
       match variant with
       | Normal normal_elem ->
@@ -2193,12 +2178,12 @@ end = struct
             tuple_with_opaque_elem_2 )
       | variant -> variant
 
-    and (transform_ty_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and transform_ty_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_variant with
       | Some td ->
@@ -2488,22 +2473,22 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse_ty_alias :
-              alias ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              alias) =
+    let rec traverse_ty_alias :
+        alias ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias =
      fun (alias_0, alias_1) ~ctx ~top_down ~bottom_up ->
       ( transform_ty_record alias_0 ~ctx ~top_down ~bottom_up,
         transform_ty_variant alias_1 ~ctx ~top_down ~bottom_up )
 
-    and (transform_ty_alias :
-          alias ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          alias) =
+    and transform_ty_alias :
+        alias ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_alias with
       | Some td ->
@@ -2530,23 +2515,23 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ty_alias elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_record :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and traverse_ty_record :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun { variant } ~ctx ~top_down ~bottom_up ->
       {
         variant = transform_fld_record_variant variant ~ctx ~top_down ~bottom_up;
       }
 
-    and (transform_ty_record :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and transform_ty_record :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_record with
       | Some td ->
@@ -2573,21 +2558,21 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ty_record elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_fld_record_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and traverse_fld_record_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun record_variant ~ctx ~top_down ~bottom_up ->
       transform_ty_variant record_variant ~ctx ~top_down ~bottom_up
 
-    and (transform_fld_record_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and transform_fld_record_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_fld_record_variant with
       | Some td ->
@@ -2616,12 +2601,12 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_fld_record_variant elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and traverse_ty_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun variant ~ctx ~top_down ~bottom_up ->
       match variant with
       | Inline_record ({ b; _ } as inline_record) ->
@@ -2643,12 +2628,12 @@ end = struct
         Tuple (elem_0, elem_1)
       | variant -> variant
 
-    and (transform_ty_variant :
-          variant ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          variant) =
+    and transform_ty_variant :
+        variant ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        variant =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_variant with
       | Some td ->
@@ -2677,21 +2662,21 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ty_variant elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ctor_variant_Single :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and traverse_ctor_variant_Single :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun variant_Single ~ctx ~top_down ~bottom_up ->
       transform_ty_record variant_Single ~ctx ~top_down ~bottom_up
 
-    and (transform_ctor_variant_Single :
-          record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          record) =
+    and transform_ctor_variant_Single :
+        record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        record =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ctor_variant_Single with
       | Some td ->
@@ -2722,22 +2707,22 @@ end = struct
           | (_ctx, `Restart elem) ->
             transform_ctor_variant_Single elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ctor_variant_Tuple :
-          alias * record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          alias * record) =
+    and traverse_ctor_variant_Tuple :
+        alias * record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias * record =
      fun (variant_Tuple_0, variant_Tuple_1) ~ctx ~top_down ~bottom_up ->
       ( transform_ty_alias variant_Tuple_0 ~ctx ~top_down ~bottom_up,
         transform_ty_record variant_Tuple_1 ~ctx ~top_down ~bottom_up )
 
-    and (transform_ctor_variant_Tuple :
-          alias * record ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          alias * record) =
+    and transform_ctor_variant_Tuple :
+        alias * record ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        alias * record =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ctor_variant_Tuple with
       | Some td ->
@@ -2979,12 +2964,8 @@ end = struct
       let _ = combine
     end
 
-    let rec (transform_ty_z :
-              z ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              z) =
+    let rec transform_ty_z :
+        z -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> z =
      fun (elem : z) ~ctx ~top_down ~bottom_up : z ->
       match top_down.Pass.on_ty_z with
       | Some td ->
@@ -3011,13 +2992,14 @@ end = struct
     let _ = transform_ty_z
 
     let rec transform_ty_s :
-              'a.
-              'a s ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a s =
-      fun (type a) (elem : a s) ~ctx ~top_down ~bottom_up : a s ->
+        'a.
+        'a s ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a s =
+     fun (type a) ->
+      fun (elem : a s) ~ctx ~top_down ~bottom_up : a s ->
        match top_down.Pass.on_ty_s with
        | Some td ->
          (match td elem ~ctx with
@@ -3044,79 +3026,86 @@ end = struct
     let _ = transform_ty_s
 
     let rec traverse_ty_gtree :
-              'a 'b.
-              ('a, 'b) gtree ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              ('a, 'b) gtree =
-      fun (type a b) (gtree : (a, b) gtree) ~ctx ~top_down ~bottom_up :
-          (a, b) gtree ->
-       match gtree with
-       | TreeG (elem_0, elem_1, elem_2) ->
-         let (elem_0, elem_1, elem_2) =
-           transform_ctor_gtree_TreeG
-             (elem_0, elem_1, elem_2)
-             ~ctx
-             ~top_down
-             ~bottom_up
-         in
-         TreeG (elem_0, elem_1, elem_2)
-       | gtree -> gtree
+        'a 'b.
+        ('a, 'b) gtree ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        ('a, 'b) gtree =
+     fun (type a) ->
+      fun (type b) ->
+       fun (gtree : (a, b) gtree) ~ctx ~top_down ~bottom_up : (a, b) gtree ->
+        match gtree with
+        | TreeG (elem_0, elem_1, elem_2) ->
+          let (elem_0, elem_1, elem_2) =
+            transform_ctor_gtree_TreeG
+              (elem_0, elem_1, elem_2)
+              ~ctx
+              ~top_down
+              ~bottom_up
+          in
+          TreeG (elem_0, elem_1, elem_2)
+        | gtree -> gtree
 
     and transform_ty_gtree :
-          'a 'b.
-          ('a, 'b) gtree ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          ('a, 'b) gtree =
-      fun (type a b) (elem : (a, b) gtree) ~ctx ~top_down ~bottom_up :
-          (a, b) gtree ->
-       match top_down.Pass.on_ty_gtree with
-       | Some td ->
-         (match td elem ~ctx with
-         | (_ctx, `Stop elem) -> elem
-         | (td_ctx, `Continue elem) ->
-           let elem = traverse_ty_gtree elem ~ctx:td_ctx ~top_down ~bottom_up in
-           (match bottom_up.Pass.on_ty_gtree with
-           | None -> elem
-           | Some bu ->
-             (match bu elem ~ctx with
-             | (_ctx, (`Continue elem | `Stop elem)) -> elem
-             | (_ctx, `Restart elem) ->
-               transform_ty_gtree elem ~ctx ~top_down ~bottom_up))
-         | (_ctx, `Restart elem) ->
-           transform_ty_gtree elem ~ctx ~top_down ~bottom_up)
-       | _ ->
-         let elem = traverse_ty_gtree elem ~ctx ~top_down ~bottom_up in
-         (match bottom_up.Pass.on_ty_gtree with
-         | None -> elem
-         | Some bu ->
-           (match bu elem ~ctx with
-           | (_ctx, (`Continue elem | `Stop elem)) -> elem
-           | (_ctx, `Restart elem) ->
-             transform_ty_gtree elem ~ctx ~top_down ~bottom_up))
+        'a 'b.
+        ('a, 'b) gtree ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        ('a, 'b) gtree =
+     fun (type a) ->
+      fun (type b) ->
+       fun (elem : (a, b) gtree) ~ctx ~top_down ~bottom_up : (a, b) gtree ->
+        match top_down.Pass.on_ty_gtree with
+        | Some td ->
+          (match td elem ~ctx with
+          | (_ctx, `Stop elem) -> elem
+          | (td_ctx, `Continue elem) ->
+            let elem =
+              traverse_ty_gtree elem ~ctx:td_ctx ~top_down ~bottom_up
+            in
+            (match bottom_up.Pass.on_ty_gtree with
+            | None -> elem
+            | Some bu ->
+              (match bu elem ~ctx with
+              | (_ctx, (`Continue elem | `Stop elem)) -> elem
+              | (_ctx, `Restart elem) ->
+                transform_ty_gtree elem ~ctx ~top_down ~bottom_up))
+          | (_ctx, `Restart elem) ->
+            transform_ty_gtree elem ~ctx ~top_down ~bottom_up)
+        | _ ->
+          let elem = traverse_ty_gtree elem ~ctx ~top_down ~bottom_up in
+          (match bottom_up.Pass.on_ty_gtree with
+          | None -> elem
+          | Some bu ->
+            (match bu elem ~ctx with
+            | (_ctx, (`Continue elem | `Stop elem)) -> elem
+            | (_ctx, `Restart elem) ->
+              transform_ty_gtree elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ctor_gtree_TreeG :
-          'a 'n.
-          ('a, 'n) gtree * 'a * ('a, 'n) gtree ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          ('a, 'n) gtree * 'a * ('a, 'n) gtree =
-     fun (gtree_TreeG_0, gtree_TreeG_1, gtree_TreeG_2) ~ctx ~top_down ~bottom_up ->
+        'a 'n.
+        ('a, 'n) gtree * 'a * ('a, 'n) gtree ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        ('a, 'n) gtree * 'a * ('a, 'n) gtree =
+     fun (gtree_TreeG_0, gtree_TreeG_1, gtree_TreeG_2)
+         ~ctx
+         ~top_down
+         ~bottom_up ->
       ( transform_ty_gtree gtree_TreeG_0 ~ctx ~top_down ~bottom_up,
         gtree_TreeG_1,
         transform_ty_gtree gtree_TreeG_2 ~ctx ~top_down ~bottom_up )
 
     and transform_ctor_gtree_TreeG :
-          'a 'n.
-          ('a, 'n) gtree * 'a * ('a, 'n) gtree ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          ('a, 'n) gtree * 'a * ('a, 'n) gtree =
+        'a 'n.
+        ('a, 'n) gtree * 'a * ('a, 'n) gtree ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        ('a, 'n) gtree * 'a * ('a, 'n) gtree =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ctor_gtree_TreeG with
       | Some td ->
@@ -3221,12 +3210,8 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse :
-              t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              t) =
+    let rec traverse :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun t ~ctx ~top_down ~bottom_up ->
       match t with
       | Plus (plus_elem_0, plus_elem_1) ->
@@ -3244,8 +3229,8 @@ end = struct
             transform cond_elem_2 ~ctx ~top_down ~bottom_up )
       | t -> t
 
-    and (transform :
-          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t) =
+    and transform :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -3336,12 +3321,8 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse :
-              t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              t) =
+    let rec traverse :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun t ~ctx ~top_down ~bottom_up ->
       match t with
       | Plus (plus_elem_0, plus_elem_1) ->
@@ -3359,8 +3340,8 @@ end = struct
             transform cond_elem_2 ~ctx ~top_down ~bottom_up )
       | t -> t
 
-    and (transform :
-          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t) =
+    and transform :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -3450,12 +3431,8 @@ module Variants = struct
         let _ = combine
       end
 
-      let rec (transform :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -3559,12 +3536,8 @@ module Variants = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | `A t_elem ->
@@ -3604,9 +3577,8 @@ module Variants = struct
                 ~bottom_up
             | _ -> t_elem)
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -3723,12 +3695,8 @@ module Variants = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | `More t_elem ->
@@ -3769,9 +3737,8 @@ module Variants = struct
             :> [ `More of Other.t | `Zero | Exactly.t ])
         | t -> t
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -3878,12 +3845,12 @@ module Variants = struct
       end
 
       let rec traverse :
-                'a.
-                'a t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | `A t_elem ->
@@ -3925,12 +3892,12 @@ module Variants = struct
         | t -> t
 
       and transform :
-            'a.
-            'a t ->
-            ctx:'ctx ->
-            top_down:'ctx Pass.t ->
-            bottom_up:'ctx Pass.t ->
-            'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4037,12 +4004,12 @@ module Variants = struct
       end
 
       let rec transform :
-                'a.
-                'a t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4147,12 +4114,12 @@ module Variants = struct
       end
 
       let rec traverse :
-                'a.
-                'a t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | `A t_elem ->
@@ -4176,12 +4143,12 @@ module Variants = struct
         | t -> t
 
       and transform :
-            'a.
-            'a t ->
-            ctx:'ctx ->
-            top_down:'ctx Pass.t ->
-            bottom_up:'ctx Pass.t ->
-            'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4283,12 +4250,12 @@ module Polymorphic = struct
       end
 
       let rec traverse :
-                'a.
-                'a t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | Self self_elem ->
@@ -4299,12 +4266,12 @@ module Polymorphic = struct
             | _ -> None)
 
       and transform :
-            'a.
-            'a t ->
-            ctx:'ctx ->
-            top_down:'ctx Pass.t ->
-            bottom_up:'ctx Pass.t ->
-            'a t =
+          'a.
+          'a t ->
+          ctx:'ctx ->
+          top_down:'ctx Pass.t ->
+          bottom_up:'ctx Pass.t ->
+          'a t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4404,12 +4371,8 @@ module Polymorphic = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun { forall } ~ctx ~top_down ~bottom_up ->
         {
           forall =
@@ -4431,9 +4394,8 @@ module Polymorphic = struct
             | _ -> forall);
         }
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4535,12 +4497,8 @@ module Recursive_mod = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | One one_elem ->
@@ -4566,9 +4524,8 @@ module Recursive_mod = struct
                 | _ -> one_elem_inner)
             | _ -> None)
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4668,12 +4625,8 @@ module Recursive_mod = struct
         let _ = combine
       end
 
-      let rec (traverse :
-                t ->
-                ctx:'ctx ->
-                top_down:'ctx Pass.t ->
-                bottom_up:'ctx Pass.t ->
-                t) =
+      let rec traverse :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun t ~ctx ~top_down ~bottom_up ->
         match t with
         | Two two_elem ->
@@ -4699,9 +4652,8 @@ module Recursive_mod = struct
                 | _ -> two_elem_inner)
             | _ -> None)
 
-      and (transform :
-            t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t)
-          =
+      and transform :
+          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
        fun elem ~ctx ~top_down ~bottom_up ->
         match top_down.Pass.on_ty_t with
         | Some td ->
@@ -4802,25 +4754,27 @@ end = struct
     end
 
     let rec traverse :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
-      fun (type a) (t : a t) ~ctx ~top_down ~bottom_up : a t ->
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
+     fun (type a) ->
+      fun (t : a t) ~ctx ~top_down ~bottom_up : a t ->
        match t with
        | Other other_elem ->
          Other (transform other_elem ~ctx ~top_down ~bottom_up)
 
     and transform :
-          'a.
-          'a t ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a t =
-      fun (type a) (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
+     fun (type a) ->
+      fun (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
        match top_down.Pass.on_ty_t with
        | Some td ->
          (match td elem ~ctx with
@@ -4924,13 +4878,14 @@ end = struct
     end
 
     let rec transform :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
-      fun (type a) (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
+     fun (type a) ->
+      fun (elem : a t) ~ctx ~top_down ~bottom_up : a t ->
        match top_down.Pass.on_ty_t with
        | Some td ->
          (match td elem ~ctx with
@@ -5023,12 +4978,12 @@ end = struct
     end
 
     let rec traverse :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun t ~ctx ~top_down ~bottom_up ->
       match t with
       | Cons (cons_elem_0, cons_elem_1) ->
@@ -5036,12 +4991,12 @@ end = struct
       | t -> t
 
     and transform :
-          'a.
-          'a t ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -5136,12 +5091,12 @@ end = struct
     end
 
     let rec transform :
-              'a.
-              'a t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a t =
+        'a.
+        'a t ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -5232,19 +5187,15 @@ end = struct
       let _ = combine
     end
 
-    let rec (traverse :
-              t ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              t) =
+    let rec traverse :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun { map } ~ctx ~top_down ~bottom_up ->
       {
         map = SMap.map (fun map -> transform map ~ctx ~top_down ~bottom_up) map;
       }
 
-    and (transform :
-          t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t) =
+    and transform :
+        t -> ctx:'ctx -> top_down:'ctx Pass.t -> bottom_up:'ctx Pass.t -> t =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_t with
       | Some td ->
@@ -5819,12 +5770,12 @@ module Typing_defs_core = struct
     end
 
     let rec traverse_ty_tuple_extra :
-              'a.
-              'a tuple_extra ->
-              ctx:'ctx ->
-              top_down:'ctx Pass.t ->
-              bottom_up:'ctx Pass.t ->
-              'a tuple_extra =
+        'a.
+        'a tuple_extra ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a tuple_extra =
      fun tuple_extra ~ctx ~top_down ~bottom_up ->
       match tuple_extra with
       | Textra { t_optional; t_variadic } ->
@@ -5841,12 +5792,12 @@ module Typing_defs_core = struct
         Tsplat (transform_ty_ty tsplat_elem ~ctx ~top_down ~bottom_up)
 
     and transform_ty_tuple_extra :
-          'a.
-          'a tuple_extra ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a tuple_extra =
+        'a.
+        'a tuple_extra ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a tuple_extra =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_tuple_extra with
       | Some td ->
@@ -5876,12 +5827,12 @@ module Typing_defs_core = struct
             transform_ty_tuple_extra elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_tuple_type :
-          'a.
-          'a tuple_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a tuple_type =
+        'a.
+        'a tuple_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a tuple_type =
      fun { t_required; t_extra } ~ctx ~top_down ~bottom_up ->
       {
         t_required =
@@ -5893,12 +5844,12 @@ module Typing_defs_core = struct
       }
 
     and transform_ty_tuple_type :
-          'a.
-          'a tuple_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a tuple_type =
+        'a.
+        'a tuple_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a tuple_type =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_tuple_type with
       | Some td ->
@@ -5928,12 +5879,12 @@ module Typing_defs_core = struct
             transform_ty_tuple_type elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_shape_type :
-          'a.
-          'a shape_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a shape_type =
+        'a.
+        'a shape_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a shape_type =
      fun { s_unknown_value; s_fields } ~ctx ~top_down ~bottom_up ->
       {
         s_unknown_value =
@@ -5946,12 +5897,12 @@ module Typing_defs_core = struct
       }
 
     and transform_ty_shape_type :
-          'a.
-          'a shape_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a shape_type =
+        'a.
+        'a shape_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a shape_type =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_shape_type with
       | Some td ->
@@ -5981,12 +5932,12 @@ module Typing_defs_core = struct
             transform_ty_shape_type elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_refined_const_bounds :
-          'a.
-          'a refined_const_bounds ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const_bounds =
+        'a.
+        'a refined_const_bounds ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const_bounds =
      fun { tr_lower; tr_upper } ~ctx ~top_down ~bottom_up ->
       {
         tr_lower =
@@ -6000,12 +5951,12 @@ module Typing_defs_core = struct
       }
 
     and transform_ty_refined_const_bounds :
-          'a.
-          'a refined_const_bounds ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const_bounds =
+        'a.
+        'a refined_const_bounds ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const_bounds =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_refined_const_bounds with
       | Some td ->
@@ -6041,17 +5992,20 @@ module Typing_defs_core = struct
             transform_ty_refined_const_bounds elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_refined_const_bound :
-          'a.
-          'a refined_const_bound ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const_bound =
-      fun (type a)
-          (refined_const_bound : a refined_const_bound)
+        'a.
+        'a refined_const_bound ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const_bound =
+     fun (type a) ->
+      fun (refined_const_bound : a refined_const_bound)
           ~ctx
           ~top_down
-          ~bottom_up : a refined_const_bound ->
+          ~bottom_up
+          :
+          a refined_const_bound
+        ->
        match refined_const_bound with
        | TRexact trexact_elem ->
          TRexact (transform_ty_ty trexact_elem ~ctx ~top_down ~bottom_up)
@@ -6064,14 +6018,20 @@ module Typing_defs_core = struct
               ~bottom_up)
 
     and transform_ty_refined_const_bound :
-          'a.
-          'a refined_const_bound ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const_bound =
-      fun (type a) (elem : a refined_const_bound) ~ctx ~top_down ~bottom_up :
-          a refined_const_bound ->
+        'a.
+        'a refined_const_bound ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const_bound =
+     fun (type a) ->
+      fun (elem : a refined_const_bound)
+          ~ctx
+          ~top_down
+          ~bottom_up
+          :
+          a refined_const_bound
+        ->
        match top_down.Pass.on_ty_refined_const_bound with
        | Some td ->
          (match td elem ~ctx with
@@ -6106,12 +6066,12 @@ module Typing_defs_core = struct
              transform_ty_refined_const_bound elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_refined_const :
-          'a.
-          'a refined_const ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const =
+        'a.
+        'a refined_const ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const =
      fun { rc_bound } ~ctx ~top_down ~bottom_up ->
       {
         rc_bound =
@@ -6119,12 +6079,12 @@ module Typing_defs_core = struct
       }
 
     and transform_ty_refined_const :
-          'a.
-          'a refined_const ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a refined_const =
+        'a.
+        'a refined_const ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a refined_const =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_refined_const with
       | Some td ->
@@ -6154,12 +6114,12 @@ module Typing_defs_core = struct
             transform_ty_refined_const elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_class_refinement :
-          'a.
-          'a class_refinement ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a class_refinement =
+        'a.
+        'a class_refinement ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a class_refinement =
      fun { cr_consts } ~ctx ~top_down ~bottom_up ->
       {
         cr_consts =
@@ -6170,12 +6130,12 @@ module Typing_defs_core = struct
       }
 
     and transform_ty_class_refinement :
-          'a.
-          'a class_refinement ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a class_refinement =
+        'a.
+        'a class_refinement ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a class_refinement =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_class_refinement with
       | Some td ->
@@ -6206,12 +6166,12 @@ module Typing_defs_core = struct
           | (_ctx, `Restart elem) ->
             transform_ty_class_refinement elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_exact :
-          exact ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          exact) =
+    and traverse_ty_exact :
+        exact ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        exact =
      fun exact ~ctx ~top_down ~bottom_up ->
       match exact with
       | Nonexact nonexact_elem ->
@@ -6223,12 +6183,12 @@ module Typing_defs_core = struct
              ~bottom_up)
       | exact -> exact
 
-    and (transform_ty_exact :
-          exact ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          exact) =
+    and transform_ty_exact :
+        exact ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        exact =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_exact with
       | Some td ->
@@ -6256,22 +6216,22 @@ module Typing_defs_core = struct
             transform_ty_exact elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_taccess_type :
-          'a.
-          'a taccess_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a taccess_type =
+        'a.
+        'a taccess_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a taccess_type =
      fun (taccess_type_0, taccess_type_1) ~ctx ~top_down ~bottom_up ->
       (transform_ty_ty taccess_type_0 ~ctx ~top_down ~bottom_up, taccess_type_1)
 
     and transform_ty_taccess_type :
-          'a.
-          'a taccess_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a taccess_type =
+        'a.
+        'a taccess_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a taccess_type =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_taccess_type with
       | Some td ->
@@ -6301,13 +6261,14 @@ module Typing_defs_core = struct
             transform_ty_taccess_type elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_ty_ :
-          'a.
-          'a ty_ ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a ty_ =
-      fun (type a) (ty_ : a ty_) ~ctx ~top_down ~bottom_up : a ty_ ->
+        'a.
+        'a ty_ ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a ty_ =
+     fun (type a) ->
+      fun (ty_ : a ty_) ~ctx ~top_down ~bottom_up : a ty_ ->
        match ty_ with
        | Tapply (tapply_elem_0, tapply_elem_1) ->
          Tapply
@@ -6385,13 +6346,14 @@ module Typing_defs_core = struct
        | ty_ -> ty_
 
     and transform_ty_ty_ :
-          'a.
-          'a ty_ ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a ty_ =
-      fun (type a) (elem : a ty_) ~ctx ~top_down ~bottom_up : a ty_ ->
+        'a.
+        'a ty_ ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a ty_ =
+     fun (type a) ->
+      fun (elem : a ty_) ~ctx ~top_down ~bottom_up : a ty_ ->
        match top_down.Pass.on_ty_ty_ with
        | Some td ->
          (match td elem ~ctx with
@@ -6418,24 +6380,24 @@ module Typing_defs_core = struct
              transform_ty_ty_ elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ctor_ty__Tunion :
-          'phase.
-          'phase ty list ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'phase ty list =
+        'phase.
+        'phase ty list ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'phase ty list =
      fun ty__Tunion ~ctx ~top_down ~bottom_up ->
       Stdlib.List.map
         (fun ty__Tunion -> transform_ty_ty ty__Tunion ~ctx ~top_down ~bottom_up)
         ty__Tunion
 
     and transform_ctor_ty__Tunion :
-          'phase.
-          'phase ty list ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'phase ty list =
+        'phase.
+        'phase ty list ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'phase ty list =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ctor_ty__Tunion with
       | Some td ->
@@ -6465,22 +6427,22 @@ module Typing_defs_core = struct
             transform_ctor_ty__Tunion elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_shape_field_type :
-          'a.
-          'a shape_field_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a shape_field_type =
+        'a.
+        'a shape_field_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a shape_field_type =
      fun { sft_ty } ~ctx ~top_down ~bottom_up ->
       { sft_ty = transform_ty_ty sft_ty ~ctx ~top_down ~bottom_up }
 
     and transform_ty_shape_field_type :
-          'a.
-          'a shape_field_type ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a shape_field_type =
+        'a.
+        'a shape_field_type ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a shape_field_type =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_shape_field_type with
       | Some td ->
@@ -6511,21 +6473,21 @@ module Typing_defs_core = struct
           | (_ctx, `Restart elem) ->
             transform_ty_shape_field_type elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_locl_ty :
-          locl_ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          locl_ty) =
+    and traverse_ty_locl_ty :
+        locl_ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        locl_ty =
      fun locl_ty ~ctx ~top_down ~bottom_up ->
       transform_ty_ty locl_ty ~ctx ~top_down ~bottom_up
 
-    and (transform_ty_locl_ty :
-          locl_ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          locl_ty) =
+    and transform_ty_locl_ty :
+        locl_ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        locl_ty =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_locl_ty with
       | Some td ->
@@ -6554,21 +6516,21 @@ module Typing_defs_core = struct
           | (_ctx, `Restart elem) ->
             transform_ty_locl_ty elem ~ctx ~top_down ~bottom_up))
 
-    and (traverse_ty_decl_ty :
-          decl_ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          decl_ty) =
+    and traverse_ty_decl_ty :
+        decl_ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        decl_ty =
      fun decl_ty ~ctx ~top_down ~bottom_up ->
       transform_ty_ty decl_ty ~ctx ~top_down ~bottom_up
 
-    and (transform_ty_decl_ty :
-          decl_ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          decl_ty) =
+    and transform_ty_decl_ty :
+        decl_ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        decl_ty =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_decl_ty with
       | Some td ->
@@ -6598,22 +6560,22 @@ module Typing_defs_core = struct
             transform_ty_decl_ty elem ~ctx ~top_down ~bottom_up))
 
     and traverse_ty_ty :
-          'a.
-          'a ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a ty =
+        'a.
+        'a ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a ty =
      fun (ty_0, ty_1) ~ctx ~top_down ~bottom_up ->
       (ty_0, transform_ty_ty_ ty_1 ~ctx ~top_down ~bottom_up)
 
     and transform_ty_ty :
-          'a.
-          'a ty ->
-          ctx:'ctx ->
-          top_down:'ctx Pass.t ->
-          bottom_up:'ctx Pass.t ->
-          'a ty =
+        'a.
+        'a ty ->
+        ctx:'ctx ->
+        top_down:'ctx Pass.t ->
+        bottom_up:'ctx Pass.t ->
+        'a ty =
      fun elem ~ctx ~top_down ~bottom_up ->
       match top_down.Pass.on_ty_ty with
       | Some td ->

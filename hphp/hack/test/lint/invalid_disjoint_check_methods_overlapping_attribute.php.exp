@@ -24,8 +24,6 @@ File "invalid_disjoint_check_methods_overlapping_attribute.php", line 57, charac
 This call to 'contains' will always return the same value, because type Bar is disjoint from type Foo. (Lint[5638])
 File "invalid_disjoint_check_methods_overlapping_attribute.php", line 105, characters 10-29:
 This call to 'contains' will always return the same value, because type string is disjoint from type EnumInt. (Lint[5638])
-File "invalid_disjoint_check_methods_overlapping_attribute.php", line 124, characters 22-28:
-Explicit `dynamic` type usage in APIs turn off most checks the Hack type checker performs. This frequently leads to reliability issues. (Lint[5809])
 File "invalid_disjoint_check_methods_overlapping_attribute.php", line 128, characters 3-25:
 Non-dynamic calls to 'isEqual' will always return the same value, because type int is disjoint from type string. (Lint[5638])
 File "invalid_disjoint_check_methods_overlapping_attribute.php", line 134, characters 3-16:
