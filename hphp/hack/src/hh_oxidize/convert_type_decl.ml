@@ -40,7 +40,7 @@ let rec collect_type_names_from_core_type (ct : core_type) : string list =
     name :: List.concat_map args ~f:collect_type_names_from_core_type
   | Ptyp_constr (_, args) ->
     List.concat_map args ~f:collect_type_names_from_core_type
-  | Ptyp_tuple tys -> List.concat_map tys ~f:collect_type_names_from_core_type
+  | Ptyp_tuple tys -> List.concat_map tys ~f:(fun (_, ct) -> collect_type_names_from_core_type ct)
   | _ -> []
 
 (** Check if a GADT constructor's return type instantiates a type parameter
@@ -412,7 +412,7 @@ let doc_comment_of_attribute { attr_name; attr_payload; _ } =
     List.find_map structure_items ~f:(fun structure_item ->
         match structure_item.pstr_desc with
         | Pstr_eval
-            ({ pexp_desc = Pexp_constant (Pconst_string (doc, _, _)); _ }, _) ->
+            ({ pexp_desc = Pexp_constant { pconst_desc = Pconst_string (doc, _, _); _ }; _ }, _) ->
           Some doc
         | _ -> None)
   | _ -> None
@@ -640,7 +640,9 @@ let declare_constructor_arguments ?(box_fields = false) ~safe_ints types :
           rust_type "Box" [] [ty]
       in
       [ty]
-    | _ -> [rust_type "Box" [] [Convert_type.tuple ~safe_ints types]]
+    | _ ->
+      let tuple_tys = List.map ~f:(fun ty -> (None, ty)) types in
+      [rust_type "Box" [] [Convert_type.tuple ~safe_ints tuple_tys]]
 
 let variant_constructor_value cd =
   (* If we see the [@value 42] attribute, assume it's for ppx_deriving enum,
@@ -656,7 +658,7 @@ let variant_constructor_value cd =
                   Pstr_eval
                     ( {
                         pexp_desc =
-                          Pexp_constant (Pconst_integer (discriminant, None));
+                          Pexp_constant { pconst_desc = Pconst_integer (discriminant, None); _ };
                         _;
                       },
                       _ );
@@ -967,7 +969,7 @@ let type_declaration ~mutual_rec ~safe_ints ~original_type_name name td =
           match ty.ptyp_desc with
           | Ptyp_tuple tys ->
             map_and_concat
-              ~f:(fun ty ->
+              ~f:(fun (_, ty) ->
                 Convert_type.core_type ~safe_ints ty |> fun t ->
                 sprintf
                   "%s pub %s"
@@ -1062,6 +1064,7 @@ let type_declaration ~mutual_rec ~safe_ints ~original_type_name name td =
     raise (Skip_type_decl "Abstract types without manifest not supported")
   (* type foo += A, e.g. the exn type. *)
   | (Ptype_open, None) -> raise (Skip_type_decl "Open types not supported")
+  | _ -> raise (Skip_type_decl "Unsupported type declaration")
 
 let type_declaration ?(mutual_rec = false) td =
   (* We keep the original so we can look up comments in the .mli *)

@@ -1,4 +1,5 @@
 (rule
+ (enabled_if %{lib-available:facebook})
  (target error_message_sentinel.fb.ml)
  (action
   (copy# facebook/error_message_sentinel.ml error_message_sentinel.fb.ml)))

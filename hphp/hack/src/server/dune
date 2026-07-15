@@ -37,6 +37,7 @@
   utils_core))
 
 (rule
+ (enabled_if %{lib-available:facebook})
  (target serverInvalidateUnits.fb.ml)
  (action
   (copy# facebook/serverInvalidateUnits.ml serverInvalidateUnits.fb.ml)))
@@ -126,6 +127,7 @@
   (pps lwt_ppx ppx_deriving.std ppx_sexp_conv ppx_hash)))
 
 (rule
+ (enabled_if %{lib-available:facebook})
  (target serverInitMessages.fb.ml)
  (action
   (copy# facebook/serverInitMessages.ml serverInitMessages.fb.ml)))
@@ -170,6 +172,7 @@
     ide_search
     startup_initializer_stubs
     state_loader
+    state_loader_futures
     write_symbol_info
   (select
    serverInitMessages.ml

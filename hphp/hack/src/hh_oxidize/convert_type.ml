@@ -84,16 +84,16 @@ let rec core_type ?(seen_indirection = false) ~safe_ints (ct : core_type) :
     rust_type "bstr::BString" [] []
   | Ptyp_constr ({ txt = Lident "t_byte_string"; _ }, []) ->
     rust_type "bstr::BString" [] []
-  | Ptyp_constr ({ txt = Ldot (Lident "Path", "t"); _ }, []) ->
+  | Ptyp_constr ({ txt = Ldot ({ txt = Lident "Path"; _ }, { txt = "t"; _ }); _ }, []) ->
     (* Path.t *)
     rust_simple_type "std::path::PathBuf"
-  | Ptyp_constr ({ txt = Ldot (Lident "Hash", "hash_value"); _ }, []) ->
+  | Ptyp_constr ({ txt = Ldot ({ txt = Lident "Hash"; _ }, { txt = "hash_value"; _ }); _ }, []) ->
     (* Hash.hash_value *)
     rust_type "isize" [] []
   | Ptyp_constr
-      ({ txt = Ldot (Ldot (Lident "Ident_provider", "Ident"), "t"); _ }, [])
-  | Ptyp_constr ({ txt = Ldot (Lident "Expression_id", "t"); _ }, [])
-  | Ptyp_constr ({ txt = Ldot (Lident "Tvid", "t"); _ }, []) ->
+      ({ txt = Ldot ({ txt = Ldot ({ txt = Lident "Ident_provider"; _ }, { txt = "Ident"; _ }); _ }, { txt = "t"; _ }); _ }, [])
+  | Ptyp_constr ({ txt = Ldot ({ txt = Lident "Expression_id"; _ }, { txt = "t"; _ }); _ }, [])
+  | Ptyp_constr ({ txt = Ldot ({ txt = Lident "Tvid"; _ }, { txt = "t"; _ }); _ }, []) ->
     rust_type "isize" [] []
   | Ptyp_constr (id, args) ->
     let id =
@@ -108,7 +108,7 @@ let rec core_type ?(seen_indirection = false) ~safe_ints (ct : core_type) :
       | Lident "float" -> "f64"
       | Lident "list" -> "Vec"
       | Lident "ref" -> "std::cell::RefCell"
-      | Ldot (Lident "Int64", "t") ->
+      | Ldot ({ txt = Lident "Int64"; _ }, { txt = "t"; _ }) ->
         Output.add_extern_use "ocamlrep_caml_builtins::Int64";
         "Int64"
       | id -> Convert_longident.longident_to_string id
@@ -153,9 +153,10 @@ let rec core_type ?(seen_indirection = false) ~safe_ints (ct : core_type) :
   | Ptyp_extension _ ->
     raise (Skip_type_decl "cannot convert type Ptyp_extension")
   | Ptyp_open _ -> raise (Skip_type_decl "cannot convert type Ptyp_open")
+  | Ptyp_functor _ -> raise (Skip_type_decl "cannot convert type Ptyp_functor")
 
 and tuple ?(seen_indirection = false) ~safe_ints types =
-  List.map ~f:(core_type ~seen_indirection ~safe_ints) types
+  List.map ~f:(fun (_, ty) -> core_type ~seen_indirection ~safe_ints ty) types
   |> rust_type "()" []
 
 let core_type = core_type ~seen_indirection:false

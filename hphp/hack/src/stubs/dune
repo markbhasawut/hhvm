@@ -1,16 +1,16 @@
 (library
- (name ai_stubs)
- (wrapped false)
- (modules ai)
- (libraries ai_options errors)
- (preprocess
-  (pps lwt_ppx ppx_deriving.std)))
+  (name ai_stubs)
+  (wrapped false)
+  (modules ai ai_decl_heap)
+  (libraries ai_options errors decl_store)
+  (preprocess
+   (pps lwt_ppx ppx_deriving.std)))
 
 (library
  (name ai_options_stubs)
  (wrapped false)
  (modules ai_options)
- (libraries errors)
+ (libraries errors utils_core)
  (preprocess
   (pps lwt_ppx ppx_deriving.std)))
 
@@ -53,12 +53,6 @@
  (preprocess
   (pps lwt_ppx ppx_deriving.std)))
 
- ; this stub file is used by both buck2 and dune
-(rule
- (target remote_old_decls_ffi.ml)
- (action
-  (copy# ../facebook/remote_old_decls/stubs/remote_old_decls_ffi.ml remote_old_decls_ffi.ml)))
-
 (library
   (name remote_old_decls_ffi)
   (wrapped false)
@@ -68,17 +62,12 @@
   (preprocess
     (pps lwt_ppx ppx_deriving.std)))
 
-; this stub file is used by both buck2 and dune
-(rule
- (target hh_distc_ffi.ml)
- (action
-  (copy# ../facebook/hh_distc/check_ffi/stubs/hh_distc_ffi.ml hh_distc_ffi.ml)))
-
 (library
   (name hh_distc_ffi)
   (wrapped false)
   (modules
     hh_distc_ffi)
+  (libraries map_reduce_ffi)
   (preprocess
     (pps lwt_ppx ppx_deriving.std)))
 
@@ -186,5 +175,43 @@
  (name findmytests_stubs)
  (wrapped false)
  (modules findMyTestsStaging findMyTestsV2)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.std)))
+
+(library
+ (name state_loader_stubs)
+ (wrapped false)
+ (modules saved_state_loader)
+ (libraries utils_core hg relative_path future server_env)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.std)))
+
+(library
+ (name linttool)
+ (wrapped false)
+ (modules linttool)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.std)))
+
+(library
+ (name redeclarations)
+ (wrapped false)
+ (modules declarationsRewriter)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.std)))
+
+(library
+ (name state_loader_lwt)
+ (wrapped false)
+ (modules state_loader_lwt)
+ (libraries utils_core lwt relative_path state_loader)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.std)))
+
+(library
+ (name state_loader_futures)
+ (wrapped false)
+ (modules state_loader_futures)
+ (libraries utils_core future state_loader)
  (preprocess
   (pps lwt_ppx ppx_deriving.std)))

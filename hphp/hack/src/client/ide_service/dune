@@ -25,6 +25,7 @@
   ide_search
   ide_top_level_def_name_at_pos
   state_loader
+  state_loader_lwt
   naming_table_builder_ffi_externs
   sys_utils
   yojson)

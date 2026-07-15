@@ -333,7 +333,7 @@ let main_hack ({ tcopt; _ } as opts) (sharedmem_config : SharedMem.config) :
           in
           let opts =
             let ai_options =
-              { opts.ai_options with Ai_options.unittest_hack_root = Some root }
+              { opts.ai_options with Ai_options.unittest_hack_root = Some (Path.to_string root)  }
             in
             { opts with ai_options; files }
           in

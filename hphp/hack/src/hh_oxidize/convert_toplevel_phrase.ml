@@ -101,7 +101,7 @@ let is_enum_module mod_name =
 
 let is_enum_module_import id =
   match id with
-  | Longident.(Ldot (Lident mod_name, enum_type_name)) ->
+  | Longident.(Ldot ({ txt = Lident mod_name; _ }, { txt = enum_type_name; _ })) ->
     List.mem
       enum_modules
       (convert_module_name mod_name, convert_type_name enum_type_name)

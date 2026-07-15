@@ -39,6 +39,7 @@
   server_progress_lwt
   server_utils
   state_loader
+  state_loader_lwt
   sys_utils
   utils_config_file_lwt
   watchman_lwt

@@ -30,16 +30,16 @@ let rec flatten_longident = function
   | Lident str -> FLident [str]
   | Lapply (id1, id2) ->
     let ids =
-      match flatten_longident id1 with
+      match flatten_longident id1.txt with
       | FLapply ids -> ids
       | id -> [id]
     in
-    FLapply (ids @ [flatten_longident id2])
+    FLapply (ids @ [flatten_longident id2.txt])
   | Ldot (id, str) ->
-    (match flatten_longident id with
-    | FLident strs -> FLident (str :: strs)
-    | FLdot (id, strs) -> FLdot (id, str :: strs)
-    | FLapply _ as id -> FLdot (id, [str]))
+    (match flatten_longident id.txt with
+    | FLident strs -> FLident (str.txt :: strs)
+    | FLdot (id, strs) -> FLdot (id, str.txt :: strs)
+    | FLapply _ as id -> FLdot (id, [str.txt]))
 
 (* [> `RustType of Rust_type.t | `Module of string ] = *)
 let to_string for_open id =

@@ -73,7 +73,8 @@
   temp_file
   typing
   utils_core
-  utils_multifile))
+  utils_multifile
+  folly_stubs))
 
 (executable
  (name hh_single_complete)
@@ -93,7 +94,8 @@
   server_services
   string
   sys_utils
-  utils_core))
+  utils_core
+  folly_stubs))
 
 (executable
  (name hh_single_ide_format)
@@ -174,6 +176,16 @@
   typing
   utils_core
   utils_exit))
+
+(executable
+ (name hh)
+ (modules hh)
+ (modes exe byte_complete)
+ (link_flags
+  (:standard
+   (:include dune_config/ld-opts.sexp)))
+ (libraries
+  unix))
 
 (library
  (name full_fidelity_parse_args)
@@ -280,7 +292,7 @@
 
 (alias
  (name hh)
- (deps hh_server.exe hh_client.exe))
+ (deps hh_server.exe hh_client.exe hh.exe))
 
 (alias
  (name single)

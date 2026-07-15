@@ -1,4 +1,5 @@
 (rule
+ (enabled_if %{lib-available:facebook})
  (target filesToIgnore.fb.ml)
  (action
   (copy# facebook/filesToIgnore.ml filesToIgnore.fb.ml)))

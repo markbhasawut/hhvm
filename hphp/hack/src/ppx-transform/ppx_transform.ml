@@ -582,7 +582,8 @@ module Decl = struct
         List.exists aux tys
       | Ptyp_object (flds, _) -> List.exists aux_obj_fld flds
       | Ptyp_variant (row_flds, _, _) -> List.exists aux_row_fld row_flds
-      | Ptyp_poly (_, ty) -> aux ty
+      | Ptyp_poly (_, ty)
+      | Ptyp_open (_, ty) -> aux ty
       | Ptyp_package _
       | Ptyp_extension _ ->
         Err.raise_unsupported_ty ty.ptyp_loc
@@ -727,7 +728,8 @@ end = struct
           @@ Option.map (fun idx -> idx :: acc) idx_opt
         in
         List.fold_left aux acc tys
-      | Ptyp_poly (_, ty) -> aux acc ty
+      | Ptyp_poly (_, ty)
+      | Ptyp_open (_, ty) -> aux acc ty
       | Ptyp_package _
       | Ptyp_extension _ ->
         Err.raise_unsupported_ty ty.ptyp_loc
@@ -1606,7 +1608,8 @@ module Gen_traverse = struct
         | Ptyp_arrow (arg_lbl, ty_dom, ty_codom) ->
           aux_arrow arg_lbl ty_dom ty_codom binding loc
         | Ptyp_constr ({ loc; txt }, tys) -> aux_constr txt tys binding loc maps
-        | Ptyp_poly (_, ty) -> aux ty binding
+        | Ptyp_poly (_, ty)
+        | Ptyp_open (_, ty) -> aux ty binding
         | Ptyp_tuple tys -> aux_tuple tys binding loc
         | Ptyp_variant (row_flds, closedflag, lbl_opts) ->
           aux_variant row_flds closedflag lbl_opts ~binding ~loc ~ty

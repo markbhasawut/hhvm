@@ -1383,11 +1383,9 @@ let shellout_patch_list_to_lsp_edits_exn (stdout : string) : Lsp.WorkspaceEdit.t
               in
               { filename; char_start; char_end; line; patch_type; replacement }))
     | `Int _
-    | `Tuple _
     | `Bool _
     | `Intlit _
     | `Null
-    | `Variant _
     | `Assoc _
     | `Float _
     | `String _ ->

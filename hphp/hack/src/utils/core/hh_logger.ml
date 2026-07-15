@@ -166,7 +166,7 @@ end = struct
 
   let min_level_file_ref = ref Info
 
-  let min_level_stderr_ref = ref Info
+  let min_level_stderr_ref = ref Error
 
   let categories_ref = ref SSet.empty
 

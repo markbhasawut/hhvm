@@ -490,9 +490,6 @@ let json_truncate
           `String (String.sub s 0 max_string_length ^ "...")
         )
     end
-    | `Tuple _
-    | `Variant _ ->
-      json
   in
   truncate ~depth:0 json
 

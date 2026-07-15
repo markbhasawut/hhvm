@@ -35,7 +35,9 @@ module Naming_and_dep_table_info = struct
     naming_table_path: Path.t;
     naming_sqlite_table_path: Path.t;
     dep_table_path: Path.t;
+    compressed_dep_table_path: Path.t;
     errors_path: Path.t;
+    warning_hashes_path: Path.t;
   }
 
   type dirty_files = {
@@ -44,11 +46,12 @@ module Naming_and_dep_table_info = struct
   }
 
   type additional_info = {
-    mergebase_global_rev: Hg.global_rev option;
     dirty_files_promise: dirty_files Future.t;
-    saved_state_distance: int option;
-    saved_state_age: int option;
+    saved_state_revs_info: ServerEnv.saved_state_revs_info;
   }
+
+  let additional_info_of_yojson _ = failwith "additional_info_of_yojson not implemented"
+  let yojson_of_additional_info _ = failwith "yojson_of_additional_info not implemented"
 end
 
 module Naming_table_info = struct
@@ -80,15 +83,22 @@ include files other than Hack files, so the caller should filter the given list
 as necessary. *)
 type changed_files = Relative_path.t list
 
-type ('main_artifacts, 'additional_info) load_result = {
+let changed_files_of_yojson _ = failwith "changed_files_of_yojson not implemented"
+let changed_files_to_yojson _ = failwith "changed_files_to_yojson not implemented"
+let yojson_of_changed_files _ = failwith "yojson_of_changed_files not implemented"
+
+type ('main_artifacts, 'additional_info) load_result_generic = {
   main_artifacts: 'main_artifacts;
   additional_info: 'additional_info;
   manifold_path: string;
   changed_files_according_to_watchman: changed_files;
-  corresponding_rev: Hg.Rev.t;
-  mergebase_rev: Hg.Rev.t;
   is_cached: bool;
 }
+
+type load_result = (
+  Naming_and_dep_table_info.main_artifacts,
+  Naming_and_dep_table_info.additional_info
+) load_result_generic
 
 module LoadError = struct
   type t = string
