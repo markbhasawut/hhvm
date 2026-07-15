@@ -5,7 +5,13 @@ import re
 from dataclasses import dataclass
 from typing import IO, List, Tuple
 
-from python.migrations.py310 import StrEnum310
+try:
+    from python.migrations.py310 import StrEnum310 as StrEnum
+except ImportError:
+    import enum
+    class StrEnum(str, enum.Enum):
+        def __str__(self) -> str:
+            return str(self.value)
 
 
 @dataclass
@@ -28,7 +34,7 @@ class PositionedMessage:
     message: str
 
 
-class Severity(StrEnum310):
+class Severity(StrEnum):
     ERROR = "ERROR"
     WARNING = "WARN"
 
