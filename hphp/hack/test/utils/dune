@@ -8,7 +8,7 @@
  (libraries
     asserter
     collections
-    exec_command_fb
+    exec_command
     lwt.unix
     lwt_utils
     test_injector_config
