@@ -19,6 +19,8 @@ fn main() {
         PathBuf::from("ffi_bridge.h"),
         hphp.join("util/process-cpu.cpp"),
         hphp.join("util/process-cpu.h"),
+        hphp.join("util/process-host.cpp"),
+        hphp.join("util/process-host.h"),
     ];
 
     cxx_build::bridge("ffi_bridge.rs")
