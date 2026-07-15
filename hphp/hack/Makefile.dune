@@ -1,4 +1,5 @@
 BYTECODE=
+PROFILE ?= release
 
 ROOT=$(shell pwd)
 
@@ -32,7 +33,7 @@ clean:
 define build_hack
 $(eval ext := $(if $(filter $(2),-debug),".bc",""))
 build-hack$(2):
-	dune build \
+	dune build --profile $(PROFILE) \
 		src/hh_server.$(1) \
 		src/hh_client.$(1) \
 		src/hh_single_ide_format.$(1) \

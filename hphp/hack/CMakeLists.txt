@@ -104,6 +104,7 @@ function(invoke_dune name target)
         opam exec --
         make --makefile=Makefile.dune ${target}
         BYTECODE="${EMIT_OCAML_BYTECODE}"
+        PROFILE="${DUNE_PROFILE}"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     )
 
@@ -121,8 +122,10 @@ set(INVOKE_CARGO "${CMAKE_SOURCE_DIR}/hphp/hack/scripts/invoke_cargo.sh")
 
 if(DEFINED ENV{HACKDEBUG})
   set(PROFILE "debug")
+  set(DUNE_PROFILE "dev")
 else()
   set(PROFILE "release")
+  set(DUNE_PROFILE "release")
 endif()
 set(RUST_FFI_CARGO_TARGET_DIR "${RUST_FFI_BUILD_ROOT}/hphp/hack/rust_ffi")
 set(HHVM_RUST_FFI_STATICLIB_NAME "hhvm_ffi_bridge")
