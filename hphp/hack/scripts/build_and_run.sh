@@ -52,6 +52,7 @@ elif [ -e "${FBCODE_ROOT}/third-party/CMakeLists.txt" ]; then
   # Open Source Dune
   DUNE="dune" \
   CARGO="cargo" \
+  DUNE_BUILD_DIR="${HACK_ROOT}/_build" \
   dune_build
 elif [ -e "${HPHP_ROOT}/facebook" ]; then
   # FB Buck

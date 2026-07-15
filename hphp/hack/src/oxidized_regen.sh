@@ -106,10 +106,27 @@ if [ -n "${BUCK_PROJECT_ROOT:-}" ]; then
 else
     # Running directly (without Buck)
     FBCODE_ROOT="$(dirname "${BASH_SOURCE[0]}")/../../.."
-    RUSTFMT_PATH="${RUSTFMT_PATH:-"$(realpath "$FBCODE_ROOT/../tools/third-party/rustfmt/rustfmt")"}"
+    if command -v rustfmt >/dev/null 2>&1; then
+        RUSTFMT_PATH="rustfmt"
+    else
+        RUSTFMT_PATH="${RUSTFMT_PATH:-"$(realpath "$FBCODE_ROOT/../tools/third-party/rustfmt/rustfmt")"}"
+    fi
 fi
 
-REGEN_COMMAND="buck run @fbcode//mode/dev-nosan-lg fbcode//hphp/hack/src:oxidized_regen"
+if [ -e "$FBCODE_ROOT/third-party/CMakeLists.txt" ]; then
+    REGEN_COMMAND="hphp/hack/src/oxidized_regen.sh"
+    EDENFS_WATCHER_TYPES_ML="hphp/hack/src/stubs/edenfs_watcher_types.ml"
+    cp "$FBCODE_ROOT/hphp/hack/src/utils/ignore/filesToIgnore.stubs.ml" "/tmp/filesToIgnore.ml"
+    FILES_TO_IGNORE_ML="/tmp/filesToIgnore.ml"
+    if [ -f "$FBCODE_ROOT/hphp/hack/src/rust-toolchain" ]; then
+        TOOLCHAIN_CHANNEL=$(grep "channel" "$FBCODE_ROOT/hphp/hack/src/rust-toolchain" | cut -d'"' -f2)
+        export RUSTUP_TOOLCHAIN="$TOOLCHAIN_CHANNEL"
+    fi
+else
+    REGEN_COMMAND="buck run @fbcode//mode/dev-nosan-lg fbcode//hphp/hack/src:oxidized_regen"
+    EDENFS_WATCHER_TYPES_ML="hphp/hack/src/facebook/edenfs_watcher/edenfs_watcher_types.ml"
+    FILES_TO_IGNORE_ML="hphp/hack/src/utils/ignore/facebook/filesToIgnore.ml"
+fi
 cd "$FBCODE_ROOT"
 
 BUILD_AND_RUN="hphp/hack/scripts/build_and_run.sh"
@@ -145,7 +162,7 @@ run_hh_oxidize \
   hphp/hack/src/diagnostics/warnings_saved_state.ml                                \
   hphp/hack/src/diagnostics/error_codes.ml                                         \
   hphp/hack/src/diagnostics/message.ml                                             \
-  hphp/hack/src/facebook/edenfs_watcher/edenfs_watcher_types.ml               \
+  "$EDENFS_WATCHER_TYPES_ML"                                                  \
   hphp/hack/src/naming/name_context.ml                                        \
   hphp/hack/src/naming/naming_error.ml                                        \
   hphp/hack/src/typing/nast_check/nast_check_error.ml                         \
@@ -178,7 +195,7 @@ run_hh_oxidize \
   hphp/hack/src/typing/typing_tyvar_occurrences.ml                            \
   hphp/hack/src/typing/xhp_attribute.ml                                       \
   hphp/hack/src/utils/decl_reference.ml                                       \
-  hphp/hack/src/utils/ignore/facebook/filesToIgnore.ml                        \
+  "$FILES_TO_IGNORE_ML"                                                       \
   hphp/hack/src/parser/scoured_comments.ml                                    \
 
 # Add exports in oxidized/lib.rs from oxidized/gen/mod.rs.
@@ -220,3 +237,7 @@ run_hh_codegen elab-transform \
   --input "hphp/hack/src/oxidized/gen/ast_defs.rs" \
   --output "hphp/hack/src/elab/" \
   --root "Program"
+
+if [ -e "$FBCODE_ROOT/third-party/CMakeLists.txt" ]; then
+    rm -f "/tmp/filesToIgnore.ml"
+fi
