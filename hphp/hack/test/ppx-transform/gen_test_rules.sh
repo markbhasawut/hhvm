@@ -12,11 +12,12 @@ for filename in "$DIRECTORY"/test_*_embed_error.ml; do
  (targets $pfx.actual.ml)
  (deps
   (:pp pp.exe)
-  (:input $file))
+  (:input $file)
+  %{project_root}/hack/.ocamlformat)
  (action
    (progn
      (with-stdout-to %{targets} (run ./%{pp} --impl %{input} -o %{targets}))
-     (bash \"arc f %{targets} > /dev/null 2>&1\")
+      (bash \"if command -v arc >/dev/null 2>&1; then arc f %{targets} >/dev/null 2>&1; else ocamlformat --inplace --enable-outside-detected-project %{targets}; fi\")
    )
  )
 )
