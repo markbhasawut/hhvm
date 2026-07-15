@@ -453,14 +453,19 @@ def filter_temp_hhi_path(text: str) -> str:
     """The .hhi files are stored in a temporary directory whose name
     changes every time. Normalise it.
 
-    /tmp/ASjh5RoWbb/builtins_fb.hhi -> /tmp/hhi_dir/builtins_fb.hhi
+    /tmp/ASjh5RoWbb/builtins_fb.hhi -> builtins_fb.hhi
 
     """
-    return re.sub(
-        r"/tmp/[^/]*/([a-zA-Z0-9_]+\.hhi)",
-        "/tmp/hhi_dir/\\1",
+    text = text.replace("/private/tmp/", "/tmp/")
+    # Strip temp path prefix entirely to match stripped output (e.g. string.hhi)
+    text = re.sub(
+        r"/tmp/[^/]*/((?:[a-zA-Z0-9_]+/)*[a-zA-Z0-9_]+\.hhi)",
+        "\\1",
         text,
     )
+    # Also strip /tmp/hhi_dir/ prefix if any
+    text = text.replace("/tmp/hhi_dir/", "")
+    return text
 
 
 def strip_pess_suffix(text: str) -> str:

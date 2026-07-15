@@ -157,6 +157,9 @@ let rec shm_dir_init config ~num_workers = function
      * exist, instead of returning -1 and an errno *)
     begin
       try
+        if not (Sys.file_exists shm_dir) then begin
+          try Unix.mkdir shm_dir 0o777 with _ -> ()
+        end;
         if not (Sys.file_exists shm_dir) then
           raise (Failed_to_use_shm_dir "shm_dir does not exist");
         hh_shared_init ~config ~shm_dir:(Some shm_dir) ~num_workers
@@ -199,13 +202,29 @@ let rec shm_dir_init config ~num_workers = function
 
 let init config ~num_workers =
   ref_has_done_init := true;
+  let config =
+    if num_workers = 0 then
+      { config with
+        global_size = min config.global_size (50 * 1024 * 1024);
+        heap_size = min config.heap_size (200 * 1024 * 1024);
+        hash_table_pow = min config.hash_table_pow 15;
+      }
+    else
+      config
+  in
   let fst =
     try anonymous_init config ~num_workers with
     | Failed_anonymous_memfd_init ->
       EventLogger.(
         log_if_initialized (fun () -> sharedmem_failed_anonymous_memfd_init ()));
       Hh_logger.log "Failed to use anonymous memfd init";
-      shm_dir_init config ~num_workers config.shm_dirs
+      let shm_dirs =
+        if List.is_empty config.shm_dirs then
+          [GlobalConfig.shm_dir; GlobalConfig.tmp_dir]
+        else
+          config.shm_dirs
+      in
+      shm_dir_init config ~num_workers shm_dirs
   in
   let snd =
     match !ref_shared_mem_callbacks with

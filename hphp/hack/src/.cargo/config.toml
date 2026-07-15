@@ -1,0 +1,3 @@
+[target.'cfg(target_os = "macos")'.env]
+CXXFLAGS = { value = "-I/opt/homebrew/include", relative = false }
+RUSTFLAGS = { value = "-L/opt/homebrew/lib", relative = false }

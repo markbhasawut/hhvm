@@ -18,8 +18,14 @@
 
 #include <sys/time.h>
 
+#ifdef __linux__
 #include <linux/magic.h>
 #include <sys/vfs.h>
+#else
+#include <sys/param.h>
+#include <sys/mount.h>
+#include <string.h>
+#endif
 
 void hh_lutimes(value filename_v) {
   CAMLparam1(filename_v);
@@ -39,6 +45,7 @@ value hh_is_nfs(value filename_v) {
   if (success != 0) {
     caml_failwith("statfs failed");
   }
+#ifdef __linux__
   switch (buf.f_type) {
 #ifdef CIFS_MAGIC_NUMBER
     case CIFS_MAGIC_NUMBER:
@@ -49,6 +56,14 @@ value hh_is_nfs(value filename_v) {
     default:
       CAMLreturn(Val_bool(0));
   }
+#else
+  if (strcmp(buf.f_fstypename, "nfs") == 0 ||
+      strcmp(buf.f_fstypename, "smbfs") == 0 ||
+      strcmp(buf.f_fstypename, "cifs") == 0) {
+    CAMLreturn(Val_bool(1));
+  }
+  CAMLreturn(Val_bool(0));
+#endif
 }
 
 // C89 spec: "The primary use of the freopen function is to change the file associated
@@ -77,6 +92,7 @@ void hh_freopen(value filename_v, value mode_v, value fd_v) {
 // (there's no way to pass O_TMPFILE into Unix.openfile).
 CAMLprim value hh_open_tmpfile(value rd_v, value wr_v, value dir_v, value file_perm_v) {
   CAMLparam4(rd_v, wr_v, dir_v, file_perm_v);
+#ifdef __linux__
   const int file_perm = Int_val(file_perm_v);
   const int rd = Bool_val(rd_v);
   const int wr = Bool_val(wr_v);
@@ -94,4 +110,7 @@ CAMLprim value hh_open_tmpfile(value rd_v, value wr_v, value dir_v, value file_p
   int fd = open(dir, flags, file_perm);
   if (fd == -1) uerror("hh_open_tmpfile", dir_v);
   CAMLreturn (Val_int(fd));
+#else
+  unix_error(ENOSYS, "hh_open_tmpfile", dir_v);
+#endif
 }

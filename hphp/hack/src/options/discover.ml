@@ -13,4 +13,10 @@ let () =
             "let default_hackfmt_path = \"" ^ bindir ^ "/hackfmt\"";
           ]
       with
-      | Not_found -> C.Flags.write_lines filename [])
+      | Not_found ->
+        C.Flags.write_lines
+          filename
+          [
+            "let system_config_path = \"/usr/local/etc\"";
+            "let default_hackfmt_path = \"/usr/local/bin/hackfmt\"";
+          ])

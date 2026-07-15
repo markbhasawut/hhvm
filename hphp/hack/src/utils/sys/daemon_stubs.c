@@ -3,30 +3,18 @@
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 
+#if defined(__linux__)
 #include <sys/personality.h>
 #include <unistd.h>
-
-/* Programs using the Daemon module tend to rely heavily on the
-   ability to pass closures to the instances of themselves that they
-   spawn. Unfortunately, this technique is unstable in the presence of
-   ASLR (address space layout randomization) (when unmarshaling
-   closures doesn't work e.g. for this reason or another, you'll see
-   it manifest as an exception along the lines of
-   ```
-     (Failure
-       "Can't find daemon parameters: (Failure \"input_value: unknown code module <DIGEST>\")")
-   ```
-   where <DIGEST> is a SHA-1 hash value).
-
-   This function, if necessary, replaces the current process in which
-   ASLR is enabled with a new instance of itself in which ASLR is
-   disabled. */
+#include <stdlib.h>
+#include <stdio.h>
+#endif
 
 CAMLprim value caml_disable_ASLR(value args) {
   CAMLparam1(args);
 
-  /* Allow users to opt out of this behavior in restricted environments, e.g.
-     docker with default seccomp profile */
+#if defined(__linux__)
+  /* Allow users to opt out of this behavior in restricted environments */
   if (getenv("HHVM_DISABLE_PERSONALITY")) {
     CAMLreturn(Val_unit);
   }
@@ -48,8 +36,15 @@ CAMLprim value caml_disable_ASLR(value args) {
       argv[i] = String_val(Field(args, i));
     }
     argv[argc] = (char const*)0;
-    (void)execv(argv[0], (char *const *)argv); /* Usually no return. */
+    (void)execv(argv[0], (char *const *)argv); 
   }
-  /* Reachable if the execv fails. */
+#elif defined(_WIN32)
+  /* Windows ignores runtime personality adjustments. 
+     ASLR should be stripped via compiler/linker options (/DYNAMICBASE:NO). */
+#elif defined(__APPLE__)
+  /* macOS strictly enforces ASLR/PIE on modern platforms (especially arm64). 
+     Architecture must handle closure isolation via clean data passing instead. */
+#endif
+
   CAMLreturn(Val_unit);
 }

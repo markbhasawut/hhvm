@@ -52,6 +52,7 @@
   (run ./discover.exe)))
 
 (rule
+ (enabled_if %{lib-available:facebook})
  (target build_options.fb.ml)
  (action
   (copy# facebook/build_options.ml build_options.fb.ml)))

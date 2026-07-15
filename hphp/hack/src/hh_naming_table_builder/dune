@@ -13,7 +13,8 @@
  (name naming_table_builder_ffi)
  (wrapped false)
  (modules)
- (foreign_archives naming_table_builder_ffi))
+ (foreign_archives naming_table_builder_ffi)
+ (c_library_flags -framework CoreFoundation))
 
 (library
  (name naming_table_builder_ffi_externs)

@@ -28,6 +28,7 @@
 #include <caml/callback.h>
 #include <caml/unixsupport.h>
 
+#ifdef __linux__
 #include <sys/inotify.h>
 
 static int inotify_flag_table[] = {
@@ -112,3 +113,29 @@ value caml_inotify_convert(value buf) {
 
   CAMLreturn(event);
 }
+#else
+value caml_inotify_init(value unit) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+value caml_inotify_add_watch(value fd, value path, value selector_flags) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+value caml_inotify_rm_watch(value fd, value watch) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+value caml_inotify_struct_size(void) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+value caml_inotify_name_max(void) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+value caml_inotify_convert(value buf) {
+  caml_failwith("inotify not supported on this platform");
+  return Val_unit;
+}
+#endif
