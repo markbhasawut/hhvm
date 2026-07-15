@@ -83,6 +83,7 @@ members = [
     "parser/schema",
     "providers/cargo/decl_provider_rust",
     "shmffi/cargo/shmffi",
+    "typing/cargo/hh_distc_types",
     "utils/arena_deserializer",
     "utils/config_file/rust/ffi",
     "utils/core",

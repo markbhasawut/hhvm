@@ -882,12 +882,6 @@ dependencies = [
 
 [[package]]
 name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
-name = "convert_case"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
@@ -1022,6 +1016,7 @@ dependencies = [
 name = "cxx"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "747d8437319e3a2f43d93b341c137927ca70c0f5dabeea7a005a73665e247c7e"
 dependencies = [
  "cc",
  "cxx-build",
@@ -1036,6 +1031,7 @@ dependencies = [
 name = "cxx-build"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0f4697d190a142477b16aef7da8a99bfdc41e7e8b1687583c0d23a79c7afc1e"
 dependencies = [
  "cc",
  "codespan-reporting",
@@ -1050,6 +1046,7 @@ dependencies = [
 name = "cxxbridge-cmd"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0956799fa8678d4c50eed028f2de1c0552ae183c76e976cf7ca8c4e36a7c328"
 dependencies = [
  "clap",
  "codespan-reporting",
@@ -1063,11 +1060,13 @@ dependencies = [
 name = "cxxbridge-flags"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23384a836ab4f0ad98ace7e3955ad2de39de42378ab487dc28d3990392cb283a"
 
 [[package]]
 name = "cxxbridge-macro"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6acc6b5822b9526adfb4fc377b67128fdd60aac757cc4a741a6278603f763cf"
 dependencies = [
  "indexmap 2.14.0",
  "proc-macro2",
@@ -1938,8 +1937,10 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "cc",
- "convert_case 0.4.0",
+ "clap",
+ "convert_case 0.11.0",
  "nom 8.0.0",
+ "nom-language",
 ]
 
 [[package]]
@@ -2316,6 +2317,17 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1",
+]
+
+[[package]]
+name = "hh_distc_types_rs"
+version = "0.0.0"
+dependencies = [
+ "diagnostics_rs",
+ "eq_modulo_pos",
+ "no_pos_hash",
+ "ocamlrep",
+ "serde",
 ]
 
 [[package]]
@@ -3308,6 +3320,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "bstr",
  "bumpalo",
@@ -3320,6 +3333,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep_caml_builtins"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "ocamlrep",
  "ocamlrep_custom",
@@ -3329,6 +3343,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep_custom"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "ocamlrep",
  "ocamlrep_ocamlpool",
@@ -3337,6 +3352,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep_derive"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3347,6 +3363,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep_marshal"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "bitflags 2.13.0",
  "cc",
@@ -3365,6 +3382,7 @@ dependencies = [
 [[package]]
 name = "ocamlrep_ocamlpool"
 version = "0.1.0"
+source = "git+https://github.com/facebook/ocamlrep/?branch=main#d48d02e953c71883497776c1abbac0a23e2b9128"
 dependencies = [
  "bumpalo",
  "cc",
