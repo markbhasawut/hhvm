@@ -113,6 +113,15 @@
 #include "dictionary_data.h"
 #include "hh_assert.h"
 
+#ifdef __APPLE__
+static inline int posix_fallocate(int fd, off_t offset, off_t len) {
+  (void)fd;
+  (void)offset;
+  (void)len;
+  return 0;
+}
+#endif
+
 #define UNUSED(x) \
     ((void)(x))
 #define UNUSED1 UNUSED
@@ -506,6 +515,22 @@ static int memfd_create_helper(const char *name, const char *shm_dir, size_t sha
   if(ftruncate(memfd, shared_mem_size) == -1) {
     uerror("ftruncate", Nothing);
   }
+#ifdef __APPLE__
+  {
+    off_t remaining = shared_mem_size;
+    static const char buf[4096] = {0};
+    while (remaining > 0) {
+      off_t to_write = remaining > 4096 ? 4096 : remaining;
+      ssize_t written = write(memfd, buf, to_write);
+      if (written <= 0) {
+        if (written == -1 && errno == EINTR) continue;
+        break;
+      }
+      remaining -= written;
+    }
+    lseek(memfd, 0, SEEK_SET);
+  }
+#endif
   return memfd;
 }
 
