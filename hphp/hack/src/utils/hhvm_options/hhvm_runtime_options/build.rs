@@ -23,15 +23,21 @@ fn main() {
         hphp.join("util/process-host.h"),
     ];
 
-    cxx_build::bridge("ffi_bridge.rs")
+    let mut builder = cxx_build::bridge("ffi_bridge.rs");
+    builder
         .files(files.iter().filter(is_cpp))
         .include(fbcode)
         .include(fbcode.join("third-party-buck/platform010/build/fmt/include"))
         .define("NO_HHVM", "1")
         .warnings(false)
         .cpp(true)
-        .flag("-std=c++20")
-        .compile("ffi_bridge");
+        .flag("-std=c++20");
+
+    if cfg!(target_os = "macos") {
+        builder.include("/opt/homebrew/include");
+    }
+
+    builder.compile("ffi_bridge");
 
     files.iter().for_each(rerun_if_changed);
     rerun_if_changed("build.rs");
