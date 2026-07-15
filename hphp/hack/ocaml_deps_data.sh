@@ -1,43 +1,44 @@
 #!/bin/bash
 
-export OCAML_VERSION="5.2.0+options"
+export OCAML_VERSION="5.5.0+options"
 
 export HACK_OPAM_DEPS=(
-  base.v0.16.3
-  base64.3.5.0
+  base.v0.17.3
+  base64.3.5.2
   camlp-streams.5.0.1
-  cmdliner.1.1.1
-  core_kernel.v0.16.0
-  core_unix.v0.16.0
-  dtoa.0.3.2
-  dune.3.6.0
-  fileutils.0.6.4
-  fmt.0.9.0
-  iomux.0.3
-  landmarks-ppx.1.4
+  cmdliner.2.1.1
+  core_kernel.v0.17.0
+  core_unix.v0.17.1
+  dtoa.0.3.3
+  dune.3.24.0
+  fileutils.0.6.6
+  fmt.0.11.0
+  iomux.0.4
+  landmarks-ppx.1.7
   lru.0.3.1
-  lwt.5.7.0
+  lwt.5.10.1
   lwt_log.1.1.2
-  lwt_ppx.2.1.0
+  lwt_ppx.5.9.3
   memtrace.0.2.3
-  merlin.5.0-502
-  mtime.1.4.0
-  ocp-indent.1.8.1
-  ounit2.2.2.6
-  pcre.7.5.0
-  ppx_deriving.5.2.1
+  merlin.5.8-505
+  mtime.2.1.0
+  ocp-indent.1.9.0
+  ounit2.2.2.7
+  pcre.8.0.5
+  ppx_deriving.6.1.2
   ppx_gen_rec.2.0.0
-  ppx_sexp_conv.v0.16.0
-  ppx_yojson_conv.v0.16.0
-  sedlex.3.0
-  sexplib.v0.16.0
-  sqlite3.5.1.0
+  ppx_sexp_conv.v0.17.1
+  ppx_yojson_conv.v0.17.1
+  sedlex.3.7
+  sexplib.v0.17.0
+  sqlite3.5.4.1
   uchar.0.0.2
-  uutf.1.0.3
-  visitors.20210608
+  uutf.1.0.4
+  visitors.20260520
   wtf8.1.0.2
-  yojson.2.0.2
-  ocamlbuild.0.14.3
+  yojson.3.0.0
+  ocamlbuild.0.16.1
+  ocamlformat.0.29.0
   ocaml-option-flambda
   ocaml-option-no-compression
 )
@@ -50,13 +51,18 @@ export OCAML_COMPILER_NAME="${OCAML_BASE_NAME}.${HACK_OCAML_VERSION}"
 
 UNAME=$(uname -s)
 ARCH=$(uname -m)
-if [ "$UNAME" != "Linux" ] || [ "$ARCH" == "aarch64" ]; then
-  # Some variants are not supported on other platforms, so we use the base
-  # version instead.
-  # +fp is known not to work on Macs or on arm64, but other combinations have not been
-  # tested.
-  echo 'Platform is not Linux or is arm64, skipping +fp'
-else
+SUPPORT_FP=false
+if [ "$ARCH" == "arm64" ] || [ "$ARCH" == "aarch64" ]; then
+  SUPPORT_FP=true
+elif [ "$ARCH" == "x86_64" ]; then
+  if [ "$UNAME" == "Linux" ] || [ "$UNAME" == "Darwin" ]; then
+    SUPPORT_FP=true
+  fi
+fi
+
+if [ "$SUPPORT_FP" == "true" ]; then
   HACK_OPAM_DEPS+=(ocaml-option-fp)
   export HACK_OPAM_DEPS
+else
+  echo 'Platform/architecture does not support +fp, skipping'
 fi
