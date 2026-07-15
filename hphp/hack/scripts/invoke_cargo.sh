@@ -43,7 +43,17 @@ if [ -z "${TARGET_DIR}" ]; then
   TARGET_DIR="${HACK_BUILD_ROOT}/target/$pkg"
 fi
 
-if [ -z ${HACKDEBUG+1} ]; then
+# CARGO_PROFILE can be set by the caller (e.g. Dune env stanza) to explicitly
+# select the Cargo build profile.  Fall back to the legacy HACKDEBUG variable
+# used by CMake.
+if [ -n "${CARGO_PROFILE}" ]; then
+  profile="${CARGO_PROFILE}"
+  if [ "$profile" = "release" ]; then
+    profile_flags="--release"
+  else
+    profile_flags=
+  fi
+elif [ -z ${HACKDEBUG+1} ]; then
   profile=release; profile_flags="--release"
 else
   profile=debug; profile_flags=

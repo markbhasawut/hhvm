@@ -1,5 +1,14 @@
 (env
+ (release
+  (env-vars (CARGO_PROFILE release))
+  (flags
+   (:standard -w @a-4-29-35-41-42-44-45-48-50-70-40 \ -strict-sequence)))
+ (dev
+  (env-vars (CARGO_PROFILE debug))
+  (flags
+   (:standard -w @a-4-29-35-41-42-44-45-48-50-70-40 \ -strict-sequence)))
  (_
+  (env-vars (CARGO_PROFILE release))
   (flags
    ; Disable warning 40 (which was only there for compatibility with an older inference algo)
    ; https://www.lexifi.com/blog/ocaml/type-based-selection-label-and-constructors/
